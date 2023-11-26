@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # Local
     "accounts.apps.AccountsConfig",
     "static_pages.apps.StaticPagesConfig",
+    "order_tracking.apps.OrderTrackingConfig",
 ]
 
 MIDDLEWARE = [
