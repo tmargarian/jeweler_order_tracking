@@ -23,6 +23,8 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     # The actual order tracking app (after login)
     path("app/", include("order_tracking.urls")),
-    # Landing page and others
+    # Stripe
+    path("stripe/", include("djstripe.urls", namespace="djstripe")),
+    # Landing page and other
     path("", include("static_pages.urls")),
 ]
