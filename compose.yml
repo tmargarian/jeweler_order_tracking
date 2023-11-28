@@ -8,13 +8,26 @@ services:
       - 8000:8000
     depends_on:
       - db
+    env_file:
+      - .env
 
   db:
     image: postgres:16
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5430:5432
     env_file:
       - .env
+
+  stripe:
+    image: stripe/stripe-cli
+    command: listen --forward-to http://web:8000/stripe/webhook/
+    depends_on:
+      - web
+    env_file:
+      - .env
+
 
 volumes:
   postgres_data:
