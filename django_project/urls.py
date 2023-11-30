@@ -27,4 +27,6 @@ urlpatterns = [
     path("stripe/", include("djstripe.urls", namespace="djstripe")),
     # Landing page and other
     path("", include("static_pages.urls")),
+    # Payments
+    path("", include("payments.urls"))
 ]
