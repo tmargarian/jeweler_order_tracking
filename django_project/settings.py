@@ -93,8 +93,7 @@ DATABASES = {
         "NAME": "postgres",
         "USER": "postgres",
         "PASSWORD": "postgres",
-        # "HOST": "localhost",  # for local runs
-        "HOST": "db",  # for docker runs
+        "HOST": "db",
         "PORT": 5432,
     }
 }
@@ -193,3 +192,7 @@ DJSTRIPE_USE_NATIVE_JSONFIELD = (
     env.bool("DJSTRIPE_USE_NATIVE_JSONFIELD", True)  # We recommend setting to True for new installations
 )
 DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
+
+# Pricing Table ID on Stripe
+STRIPE_PRICING_TABLE_ID = env("STRIPE_PRICING_TABLE_ID")
+
