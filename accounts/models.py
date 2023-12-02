@@ -15,16 +15,6 @@ class CustomUser(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def delete(self, using=None, keep_parents=False):
-        from order_tracking.models import Client, Order, Note
-        self.is_active = False
-        Company.objects.filter(users=self).update(deleted_flag=True)
-        Owner.objects.filter(user=self).update(deleted_flag=True)
-        Client.objects.filter(user=self).update(deleted_flag=True)
-        Order.objects.filter(user=self).update(deleted_flag=True)
-        Note.objects.filter(user=self).update(deleted_flag=True)
-        self.save()
-
 
 class Company(models.Model):
     company_name = models.CharField(max_length=100)
@@ -40,16 +30,6 @@ class Company(models.Model):
     def __str__(self):
         return self.company_name
 
-    def delete(self, using=None, keep_parents=False):
-        from order_tracking.models import Client, Order, Note
-        CustomUser.objects.filter(company=self).update(deleted_flag=True)
-        Owner.objects.filter(company=self).update(deleted_flag=True)
-        Client.objects.filter(company=self).update(deleted_flag=True)
-        Order.objects.filter(company=self).update(deleted_flag=True)
-        Note.objects.filter(company=self).update(deleted_flag=True)
-        self.deleted_flag = True
-        self.save()
-
 
 class Owner(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="owners")
@@ -58,14 +38,6 @@ class Owner(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def delete(self, using=None, keep_parents=False):
-        from order_tracking.models import Client, Order
-        self.deleted_flag = True
-        Employee.objects.filter(user=self).update(deleted_flag=True)
-        Client.objects.filter(user=self).update(deleted_flag=True)
-        Order.objects.filter(user=self).update(deleted_flag=True)
-        self.save()
-
 
 class Employee(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="employees")
@@ -73,11 +45,3 @@ class Employee(models.Model):
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    def delete(self, using=None, keep_parents=False):
-        from order_tracking.models import Client, Order
-        self.user.is_active = False
-        self.deleted_flag = True
-        Order.objects.filter(user=self).update(deleted_flag=True)
-        Client.objects.filter(user=self).update(deleted_flag=True)
-        self.save()
