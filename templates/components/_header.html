@@ -16,9 +16,14 @@
                         <a class="nav-link active" href="#">Order Tracker</a>
                     </li>
                 {% endif %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'pricing_page' %}">Pricing</a>
-                </li>
+                {% if not user.is_authenticated %}
+                    <!-- Showing Pricing page only to non authenticated users  !-->
+                    <!-- The logic is that the product/plan selection leads to signup/login !-->
+                    <!-- Then AFTER signup/login when we have customer data - we proceed with Stripe !-->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pricing_page' %}">Pricing</a>
+                    </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="#">About</a>
                 </li>

@@ -6,5 +6,6 @@ django-crispy-forms==2.1
 crispy-bootstrap5==2023.10
 django-allauth==0.58.2
 dj-stripe==2.8.3
+stripe<5.0.0
 environs[django]==9.5.0
 pillow==10.1.0
