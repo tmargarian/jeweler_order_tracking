@@ -1,24 +1,44 @@
 {% extends "base/_base_landing_page.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{% static 'css/pricing.css' %}">
+{% endblock stylesheets %}
 
 {% block content %}
     <main class="row flex-grow-1 vw-100">
-        <div class="m-auto">
-            <section>
-                <p class="title">Pricing Plans</p>
-                <div class="columns">
-                    {% for product in products %}
-                        <div class="column">
-                            <p class="subtitle">{{ product.name }}</p>
-                            {% for plan in product.plan_set.all %}
-                                <div>
-                                    <p class="heading">{{ plan.nickname }}</p>
-                                    <p>{{ plan.human_readable_price }}</p>
-                                </div>
-                            {% endfor %}
+        <div class="container py-3 text-center">
+            {% comment %} Pricing Text {% endcomment %}
+            <div class="pricing-header p-3 mx-auto text-center">
+                <h1 class="display-4 fw-normal text-body-emphasis">Pricing</h1>
+                <p class="mb-1 fs-5 text-body-secondary">
+                    Our currently offered options for Jewelry order tracking!
+                </p>
+            </div>
+
+            {% comment %} Offered Plans {% endcomment %}
+            <div class="btn-group mb-3" role="group">
+                <input type="radio" class="btn-check" name="btnradio" id="monthly-btn-radio" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="monthly-btn-radio">Monthly</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="yearly-btn-radio" autocomplete="off">
+                <label class="btn btn-outline-primary" for="yearly-btn-radio">Yearly (2 Free Months!)</label>
+            </div>
+            <div class="row row-cols-{{ products.count }} mt-3 mb-3 text-center justify-content-center">
+                {% for product in products %}
+                    <div class="col">
+                        <div class="card mb-4 rounded-3 shadow-sm">
+                            <div class="card-header py-3">
+                                <h4 class="my-0 fw-normal">{{ product.name }}</h4>
+                            </div>
+                            <div class="card-body">
+                                <h1 class="card-title pricing-card-title">$99</h1>
+                            </div>
                         </div>
-                    {% endfor %}
-                </div>
-            </section>
+                    </div>
+                {% endfor %}
+
+            </div>
         </div>
     </main>
 {% endblock content %}
