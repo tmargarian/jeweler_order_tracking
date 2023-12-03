@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-import features
+import payments.features as features
+import inspect
+import sys
 
 
 @dataclass
@@ -26,3 +28,11 @@ STANDARD = ProductMetadata(
         features.PRIORITY_SUPPORT,
     ],
 )
+
+# Building a Product Metadata List for usage in views.py
+# this dictionary contains all plans in this file with non-empty stripe_id
+product_metadata_dict = {
+    member.stripe_id: member
+    for name, member in inspect.getmembers(sys.modules[__name__])
+    if isinstance(member, ProductMetadata) and hasattr(member, 'stripe_id')
+}
