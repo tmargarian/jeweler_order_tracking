@@ -13,6 +13,7 @@
 {% block content %}
     <main class="row flex-grow-1 vw-100">
         <div class="form-signin m-auto">
+            {% csrf_token %}
             {% crispy form %}
         </div>
     </main>

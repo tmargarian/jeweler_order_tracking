@@ -19,6 +19,10 @@ class CustomUserAdmin(UserAdmin):
         "is_superuser",
     ]
 
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('company', 'phone_number', 'is_owner', 'is_employee')}),
+    )
+
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Company)

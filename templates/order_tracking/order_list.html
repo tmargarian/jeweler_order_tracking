@@ -1,0 +1,111 @@
+{% extends "base/_base_in_product.html" %}
+{% load static %}
+
+{% block content %}
+    <table class="table">
+        <thead>
+            <th scope="col">#</th>
+            <th scope="col">Order Picture</th>
+            <th scope="col">Client Name</th>
+            <th class="text-center" scope="col">Order Status</th>
+            <th scope="col">Order Type</th>
+            <th scope="col">
+                <a href="?{{ order_status_query_string }}&{{ client_ids_query_string }}{% if request.GET.sort_by == 'order_date' %}&sort_by=-order_date {% else %}&sort_by=order_date{% endif %}">
+                    Order Date
+                </a>                
+                {% if request.GET.sort_by == "order_date" %}
+                    &uarr;
+                {% elif request.GET.sort_by == "-order_date" %}
+                    &darr;
+                {% endif %}
+            </th>
+            <th scope="col">
+                <a href="?{{ order_status_query_string }}&{{ client_ids_query_string }}{% if request.GET.sort_by == 'order_due_date' %}&sort_by=-order_due_date{% else %}&sort_by=order_due_date{% endif %}">
+                    Due Date
+                </a>
+                {% if request.GET.sort_by == "order_due_date" %}
+                    &uarr;
+                {% elif request.GET.sort_by == "-order_due_date" %}
+                    &darr;
+                {% endif %}
+            </th>
+            <th scope="col">Order Price</th>
+            <th scope="col">Actions</th>
+        </thead>
+        <tbody>
+            {% for order_list in order_list %}
+            {% if user.company == order_list.company %}
+            <tr style="vertical-align: middle">
+                <th scope="row">{{ forloop.counter }}</th>
+
+                <td>
+                    {% if order_list.order_photo %}
+                        <img class="rounded-image" src="{{ order_list.order_photo.url }}" alt="Order Photo">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+
+                <td>{{ order_list.client.first_name }} {{ order_list.client.last_name }}</td>
+
+
+                <td class="text-center">
+                    {{ order_list.order_status }}
+                </td>
+
+                <td>{{ order_list.order_type }}</td>
+                <td>{{ order_list.order_date }}</td>
+                <td>{{ order_list.order_due_date }}</td>
+                <td>{{ order_list.quoted_price }}</td>
+                <td>
+                    <a href="{% url 'order_tracking:order_update' order_list.pk %}">Edit</a> |
+                    {% if user.is_owner or user.is_employee %}
+                    <a href="{% url 'order_tracking:order_delete' order_list.pk %}">Delete</a>
+                    {% endif %}
+                </td>
+
+            </tr>
+            {% endif %}
+            {% endfor %}
+
+            {% comment %} Modal for displaying image {% endcomment %}
+            <div id="imageModal" class="modal">
+                <span class="close" id="closeModal">&times;</span>
+                <img class="modal-content" id="modalImage" src="" alt="">
+                
+            </div>
+
+            <script>
+                // Get the modal and image elements
+                var modal = document.getElementById("imageModal");
+                var modalImg = document.getElementById("modalImage");
+                
+                // Get all images with the class "rounded-image"
+                var images = document.querySelectorAll(".rounded-image");
+                
+                // Get the close button
+                var closeModal = document.getElementById("closeModal");
+                
+                // Loop through all images and add an event listener to each
+                images.forEach(function(image) {
+                    image.addEventListener("click", function() {
+                        modal.style.display = "block";
+                        modalImg.src = this.src;
+                    });
+                });
+                
+                // Close the modal when the close button is clicked
+                closeModal.onclick = function() {
+                    modal.style.display = "none";
+                };
+                
+                // Close the modal when the user clicks outside the modal
+                window.onclick = function(event) {
+                    if (event.target === modal) {
+                        modal.style.display = "none";
+                    }
+                };
+            </script>
+        </tbody>
+    </table>
+{% endblock content %}
