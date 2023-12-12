@@ -1,0 +1,23 @@
+{% extends "base/_base_in_product.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Delete Order
+{% endblock title %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Are you sure you want to delete this order?</h2>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="submit" class="btn btn-danger" value="Yes">
+                    <a href="{% url 'order_tracking:order_update' order.pk %}" class="btn btn-secondary">No</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

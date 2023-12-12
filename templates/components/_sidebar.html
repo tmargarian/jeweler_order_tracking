@@ -9,10 +9,10 @@
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
         <li>
-            <a href='#'
+            <a href="{% url 'order_tracking:order_list' %}"
                class="nav-link text-white">
                 <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#table"/>
+                    <use xlink:href="#table"></use>
                 </svg>
                 Orders
             </a>
@@ -21,16 +21,16 @@
             <a href="#"
                class="nav-link text-white">
                 <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#people-circle"/>
+                    <use xlink:href="#people-circle"></use>
                 </svg>
                 Clients
             </a>
         </li>
         <li>
-            <a href='#'
+            <a href="{% url 'order_tracking:order_create' %}"
                class="nav-link bg-light text-dark">
                 <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#plus-circle"/>
+                    <use xlink:href="#plus-circle"></use>
                 </svg>
                 New Order
             </a>
@@ -57,4 +57,5 @@
                 <li><a class="dropdown-item" href="{% url 'account_logout' %}">Sign out</a></li>
             </ul>
         </div>
+    </ul>
 </div>
