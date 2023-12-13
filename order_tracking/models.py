@@ -1,12 +1,12 @@
+import os
+import uuid
+from PIL import Image
+from io import BytesIO
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-import uuid
 from django.utils import timezone
 from django.db import models
 from accounts.models import Company
-from PIL import Image
-from io import BytesIO
-import os
 
 
 class Order(models.Model):
