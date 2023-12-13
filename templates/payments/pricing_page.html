@@ -18,30 +18,94 @@
 
             {% comment %} Offered Plans {% endcomment %}
             <div class="btn-group mb-3" role="group">
-                <input type="radio" class="btn-check" name="btnradio" id="monthly-btn-radio" autocomplete="off" checked>
-                <label class="btn btn-outline-primary" for="monthly-btn-radio">Monthly</label>
-
-                <input type="radio" class="btn-check" name="btnradio" id="yearly-btn-radio" autocomplete="off">
+                <input type="radio"
+                       class="btn-check"
+                       name="pricing-option"
+                       id="yearly-btn-radio"
+                       autocomplete="off"
+                       value="year"
+                       checked>
                 <label class="btn btn-outline-primary" for="yearly-btn-radio">Yearly (2 Free Months!)</label>
+
+                <input type="radio"
+                       class="btn-check"
+                       name="pricing-option"
+                       id="monthly-btn-radio"
+                       autocomplete="off"
+                       value="month"
+                >
+                <label class="btn btn-outline-primary" for="monthly-btn-radio">Monthly</label>
             </div>
-            <div class="row row-cols-{{ products.count }} mt-3 mb-3 text-center justify-content-center">
-                {% for product in products %}
-                    <div class="col">
-                        <div class="card mb-4 rounded-3 shadow-sm">
-                            <div class="card-header py-3">
-                                <h4 class="my-0 fw-normal">{{ product.name }}</h4>
+            <div class="row row-cols-{{ plans.count }} mt-3 mb-3 text-center justify-content-center">
+                {% for plan in plans %}
+                    <div class="col" data-subscription-frequency="{{ plan.interval }}">
+                        <div class="card mb-4 rounded-3 shadow-sm
+                                   {% if plan.is_default %} border-primary
+                                   {% endif %}">
+                            <div class="card-header py-3
+                                        {% if plan.is_default %} text-bg-primary border-primary
+                                        {% endif %}">
+                                <h4 class="my-0 fw-normal">{{ plan.product.name }}</h4>
                             </div>
                             <div class="card-body">
-                                <h1 class="card-title pricing-card-title">$99</h1>
+                                <h1 class="card-title pricing-card-title">${{ plan.amount|floatformat }}
+                                    <small class="text-body-secondary fw-light">/{{ plan.interval }}</small>
+                                </h1>
+                                <ul class="list-unstyled mt-3 mb-4">
+                                    {% for feature in plan.product.metadata.feature_list %}
+                                    	<li>{{ feature }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <a class="w-100 btn btn-lg
+                                               {% if plan.is_default %} btn-primary
+                                               {% else %} btn-outline-primary
+                                               {% endif %}"
+                                    href="accounts/signup">
+                                    Sign Up
+                                </a>
                             </div>
                         </div>
                     </div>
                 {% endfor %}
-
             </div>
         </div>
     </main>
 {% endblock content %}
 
 {% block script %}
+    <script>
+        const radioButtons = document.querySelectorAll('.btn-check');
+        const monthlySelector = document.querySelector("[data-subscription-frequency='month']");
+        const yearlySelector = document.querySelector("[data-subscription-frequency='year']");
+
+        function switchMonthlyToYearly() {
+            monthlySelector.style.display = 'none';
+            yearlySelector.style.display = 'block';
+        }
+
+        function switchYearlyToMonthly() {
+            monthlySelector.style.display = 'block';
+            yearlySelector.style.display = 'none';
+        }
+
+        radioButtons.forEach(radioButton => {
+            // Set initial default pricing
+            if (radioButton.checked) {
+                if (radioButton.value === 'year') {
+                    switchMonthlyToYearly();
+                } else if (radioButton === 'month') {
+                    switchYearlyToMonthly();
+                }
+            }
+
+            // Add event listeners to radio buttons
+            radioButton.addEventListener('change', function() {
+                if (radioButton.id === 'yearly-btn-radio') {
+                    switchMonthlyToYearly();
+                } else if (radioButton.id === 'monthly-btn-radio') {
+                    switchYearlyToMonthly();
+                }
+            });
+        });
+    </script>
 {% endblock script %}

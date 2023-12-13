@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     # Local
+    "payments.apps.PaymentsConfig",
     "accounts.apps.AccountsConfig",
     "static_pages.apps.StaticPagesConfig",
     "order_tracking.apps.OrderTrackingConfig",

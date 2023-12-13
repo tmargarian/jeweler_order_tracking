@@ -21,11 +21,10 @@ STANDARD = ProductMetadata(
     stripe_id="prod_P5RvlvuwVtA1We",
     name="Standard",
     description="Our only (just yet) and best product!",
-    is_default=True,
     feature_list=[
         features.PRIORITY_SUPPORT,
         features.SMS_NOTIFICATIONS,
-        features.PRIORITY_SUPPORT,
+        features.PICTURE_UPLOADING,
     ],
 )
 
