@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third-Party
+    "formtools",
     "djstripe",
     "crispy_forms",
     "crispy_bootstrap5",
@@ -173,7 +174,8 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 
 # Custom Login form (remove labels)
-ACCOUNT_FORMS = {"login": "accounts.forms.CustomLoginForm"}
+ACCOUNT_FORMS = {"login": "accounts.forms.CustomLoginForm",
+                 "signup": "accounts.forms.CustomSignupForm"}
 
 # Crispy Forms configuration
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

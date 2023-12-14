@@ -9,3 +9,4 @@ dj-stripe==2.8.3
 stripe<5.0.0
 environs[django]==9.5.0
 pillow==10.1.0
+django-formtools==2.4.1

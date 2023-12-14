@@ -1,3 +1,5 @@
 from django.shortcuts import render
+from formtools.wizard.views import SessionWizardView
+from allauth.account.utils import complete_signup
 
-# Create your views here.
+from .forms import CustomSignupForm

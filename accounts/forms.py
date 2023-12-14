@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
-from allauth.account.forms import LoginForm
+from allauth.account.forms import LoginForm, SignupForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import *
 from crispy_bootstrap5.bootstrap5 import FloatingField
@@ -25,6 +25,13 @@ class CustomLoginForm(LoginForm):
         )
 
 
+class CustomSignupForm(SignupForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+
+## These are for Django Admin only
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = get_user_model()
