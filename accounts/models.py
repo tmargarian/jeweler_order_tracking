@@ -17,7 +17,6 @@ class CustomUser(AbstractUser):
 
 class Company(models.Model):
     company_name = models.CharField(max_length=100)
-    members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="companies", blank=True)
     address_lines = models.CharField(max_length=200)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
