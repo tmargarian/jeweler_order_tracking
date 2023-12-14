@@ -10,13 +10,12 @@ STEP_TWO = "1"
 class UserProfileWizard(SessionWizardView):
     def get_form_instance(self, step):
         instance = None
-        created = False
 
         if step == STEP_ONE:
-            instance, created = UserProfile.objects.get_or_create(user_id=self.request.user.id)
+            instance = UserProfile.objects.get_or_create(user_id=self.request.user.id)[0]
         elif step == STEP_TWO:
             custom_user = CustomUser.objects.get(id=self.request.user.id)
-            instance, created = Company.objects.get_or_create(id=custom_user.company_id)
+            instance = Company.objects.get_or_create(id=custom_user.company_id)[0]
 
         return instance
 
