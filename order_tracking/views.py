@@ -56,15 +56,23 @@ class OrderCreateView(LoginRequiredMixin, FormView):
     def get_success_url(self):
         return reverse("order_tracking:order_list")
 
+    def get(self, request, *args, **kwargs):
+        client_form = ClientCreateForm()
+        return self.render_to_response(self.get_context_data(client_form=client_form))
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
         client_already_exists = self.request.POST.get('client_already_exists')
         client_form = ClientCreateForm(self.request.POST)
 
         if form.is_valid() and client_form.is_valid():
-            user = self.request.user
             order = form.save(commit=False)
-            order.company = user.company
-            order.user = user
+            order.company = self.request.user.company
+            order.user = self.request.user
             order_photo = self.request.FILES.get('order_photo')
             if order_photo and order_photo.size > (6 * 1024 * 1024):  # 6 MB
                 form.add_error('order_photo', "File size should not exceed 6 MB.")
@@ -82,35 +90,35 @@ class OrderCreateView(LoginRequiredMixin, FormView):
                         and client_form.cleaned_data.get('last_name') != ''
                         and client_form.cleaned_data.get('phone_number') != ''):
                     client = Client.objects.create(
-                        company=user.company,
-                        user=user,
+                        company=self.request.user.company,
+                        user=self.request.user,
                         order=order,
                         first_name=client_form.cleaned_data['first_name'],
                         last_name=client_form.cleaned_data['last_name'],
                         email=client_form.cleaned_data['email'],
                         phone_number=client_form.cleaned_data['phone_number'],
                     )
+                    order.client = client
                     client.save()
                     order.save()
 
                 else:
                     form.add_error('client', "Create a new client or check the box.")
 
+            # Check for a new note in the request POST data
             note_content = self.request.POST.get('note_content')
 
             if note_content:
                 # Create a new note and associate it with the current order
                 note = Note.objects.create(order=order, content=note_content)
-                note.user = user
-                note.company = user.company
+                note.company = self.request.user.company
+                note.user = self.request.user
+                note.order = order
                 note.save()
 
-            if not form.is_valid() or not client_form.is_valid():
-                return self.form_invalid(form)
-
             return redirect(self.get_success_url())
-
-        return self.form_invalid(form)
+        else:
+            return self.form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -160,8 +168,9 @@ class OrderUpdateView(LoginRequiredMixin, generic.UpdateView):
         if note_content and note_action == 'create':
             # Create a new note and associate it with the current order
             note = Note.objects.create(order=order, content=note_content)
-            note.user = user
             note.company = user.company
+            note.user = user
+            note.order = order
             note.save()
 
         return super().form_valid(form)

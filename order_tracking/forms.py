@@ -30,19 +30,19 @@ class ClientCreateForm(forms.ModelForm):
         initial=None,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
+    phone_number = forms.CharField(
+        label='Client Phone Number',
+        max_length=20,
+        required=False,
+        initial=None,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
     email = forms.EmailField(
         label='Client Email Address',
         max_length=254,
         required=False,
         initial=None,
         widget=forms.EmailInput(attrs={'class': 'form-control'})
-    )
-    phone_number = forms.CharField(
-        label='Client Phone Number',
-        max_length=20,
-        required=False,
-        initial=None,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
 
     class Meta:
@@ -63,11 +63,11 @@ class ClientCreateForm(forms.ModelForm):
         phone_number = cleaned_data.get("phone_number")
 
         if client_already_exists is False:
-            if first_name is None:
+            if not first_name:
                 self.add_error('first_name', "This field is required.")
-            if last_name is None:
+            if not last_name:
                 self.add_error('last_name', "This field is required.")
-            if phone_number is None:
+            if not phone_number:
                 self.add_error('phone_number', "This field is required.")
 
         return cleaned_data
@@ -84,13 +84,13 @@ class OrderCreateForm(forms.ModelForm):
     order_date = forms.DateField(
         label='Order Date',
         widget=forms.DateInput(attrs={'type': 'date', 'format': '%d %b %Y'}),
-        required=False,
+        required=True,
         initial=timezone.now
     )
     order_due_date = forms.DateField(
         label='Due Date',
         widget=forms.DateInput(attrs={'type': 'date', 'format': '%d %b %Y'}),
-        required=False,
+        required=True,
         initial=timezone.now
     )
     order_type = forms.ChoiceField(
@@ -119,39 +119,37 @@ class OrderCreateForm(forms.ModelForm):
         min_value=0.00,
         max_digits=10,
         decimal_places=2,
-        initial=0,
+        initial=0.00,
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'})
     )
     quoted_price = forms.DecimalField(
         label='Quoted Price',
         min_value=0.00,
-        max_value=1000000,
         max_digits=10,
         decimal_places=2,
-        initial=0,
+        initial=0.00,
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'})
     )
     security_deposit = forms.DecimalField(
         label='Security Deposit',
         min_value=0.00,
-        max_value=1000000,
         max_digits=10,
         decimal_places=2,
-        initial=0,
+        initial=0.00,
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'})
-    )
-    note_content = forms.CharField(
-        label='Add Note',
-        widget=forms.Textarea(attrs={'rows': 2}),
-        required=False
     )
     order_photo = forms.ImageField(
         label='Add Picture',
         required=False,
         widget=forms.FileInput(attrs={'accept': 'image/*', 'capture': 'camera'})
+    )
+    note_content = forms.CharField(
+        label='Add Note',
+        widget=forms.Textarea(attrs={'rows': 2}),
+        required=False
     )
 
     class Meta:
@@ -182,19 +180,19 @@ class OrderCreateForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        quoted_price = self.cleaned_data.get('quoted_price')
-        estimated_cost = self.cleaned_data.get('estimated_cost')
-        security_deposit = self.cleaned_data.get('security_deposit')
-        order_due_date = self.cleaned_data.get('order_due_date')
         order_date = self.cleaned_data.get('order_date')
+        order_due_date = self.cleaned_data.get('order_due_date')
+        estimated_cost = self.cleaned_data.get('estimated_cost')
+        quoted_price = self.cleaned_data.get('quoted_price')
+        security_deposit = self.cleaned_data.get('security_deposit')
 
         if order_due_date < order_date:
             self.add_error('order_due_date', "Due date cannot be before order date")
 
-        if quoted_price is not None and estimated_cost is not None and quoted_price < estimated_cost:
+        if quoted_price and estimated_cost and quoted_price < estimated_cost:
             self.add_error('quoted_price', "Quoted price cannot be less than estimated cost")
 
-        if quoted_price is not None and security_deposit is not None and security_deposit > quoted_price:
+        if quoted_price and security_deposit and security_deposit > quoted_price:
             self.add_error('security_deposit', "Security deposit cannot be greater than quoted price")
 
         return cleaned_data
