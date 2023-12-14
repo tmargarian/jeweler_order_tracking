@@ -45,7 +45,7 @@ class Owner(models.Model):
 
 class Employee(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="employees")
-    # One User can only be one Emplyee and vice versa.
+    # One User can only be one Employee and vice versa.
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="employees")
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
