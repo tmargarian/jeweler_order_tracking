@@ -164,6 +164,7 @@ AUTHENTICATION_BACKENDS = [
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # TODO: Specify LOGIN/LOGOUT/ACCOUNT REDIRECT URL parameters
+ACCOUNT_SIGNUP_REDIRECT_URL = "user_profile"
 LOGIN_REDIRECT_URL = "order_tracking:order_list"
 LOGOUT_REDIRECT_URL = "account_login"
 
@@ -174,8 +175,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 
 # Custom Login form (remove labels)
-ACCOUNT_FORMS = {"login": "accounts.forms.CustomLoginForm",
-                 "signup": "accounts.forms.CustomSignupForm"}
+ACCOUNT_FORMS = {"login": "accounts.forms.CustomLoginForm"}
 
 # Crispy Forms configuration
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

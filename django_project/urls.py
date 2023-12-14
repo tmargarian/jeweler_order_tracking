@@ -24,6 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # User management
     path("accounts/", include("allauth.urls")),
+    path("accounts/", include("accounts.urls")),
     # The actual order tracking app (after login)
     path("app/", include("order_tracking.urls")),
     # Stripe
