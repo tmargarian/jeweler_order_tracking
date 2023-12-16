@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import reverse, redirect
+from django.shortcuts import reverse, redirect, render
 from django.views.generic.edit import FormView
-from .forms import OrderCreateForm, ClientCreateForm
+from .forms import OrderCreateForm, ClientCreateForm, NoteCreateForm
 from .models import Client, Note, Order
 from django.views import generic
 from django.http import QueryDict, JsonResponse
@@ -50,45 +50,44 @@ class OrderListView(LoginRequiredMixin, generic.ListView):
 
 class OrderCreateView(LoginRequiredMixin, FormView):
     template_name = "order_tracking/order_create.html"
-    form_class = OrderCreateForm
-    context_object_name = "order_create"
 
     def get_success_url(self):
         return reverse("order_tracking:order_list")
 
     def get(self, request, *args, **kwargs):
         client_form = ClientCreateForm()
-        return self.render_to_response(self.get_context_data(client_form=client_form))
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
+        order_form = OrderCreateForm()
+        note_form = NoteCreateForm()
+        return render(request, self.template_name, {
+            'client_form': client_form,
+            'order_form': order_form,
+            'note_form': note_form,
+        })
 
     def form_valid(self, form):
         client_already_exists = self.request.POST.get('client_already_exists')
         client_form = ClientCreateForm(self.request.POST)
+        order_form = OrderCreateForm(self.request.POST, self.request.FILES)
+        note_form = NoteCreateForm(self.request.POST)
 
-        if form.is_valid() and client_form.is_valid():
+        if order_form.is_valid() and client_form.is_valid() and note_form.is_valid():
             order = form.save(commit=False)
             order.company = self.request.user.company
             order.user = self.request.user
             order_photo = self.request.FILES.get('order_photo')
-            if order_photo and order_photo.size > (6 * 1024 * 1024):  # 6 MB
-                form.add_error('order_photo', "File size should not exceed 6 MB.")
-                return self.form_invalid(form)
 
-            if client_already_exists == 'True':
-                if 'client' in form.cleaned_data and form.cleaned_data['client']:
-                    order.client = form.cleaned_data['client']
+            # If client exists and is selected in the dropdown
+            if client_already_exists is True:
+                if 'client' in order_form.cleaned_data and order_form.cleaned_data['client']:
+                    order.client = order_form.cleaned_data['client']
                     order.save()
                 else:
                     form.add_error('client', "Client must be selected when Client Already Exists is checked.")
 
-            elif client_already_exists == 'False':
-                if (client_form.cleaned_data.get('first_name') != ''
-                        and client_form.cleaned_data.get('last_name') != ''
-                        and client_form.cleaned_data.get('phone_number') != ''):
+            if client_already_exists is False:
+                if ('first_name' in client_form.cleaned_data
+                        and 'last_name' in client_form.cleaned_data
+                        and 'phone_number' in client_form.cleaned_data):
                     client = Client.objects.create(
                         company=self.request.user.company,
                         user=self.request.user,
@@ -101,29 +100,39 @@ class OrderCreateView(LoginRequiredMixin, FormView):
                     order.client = client
                     client.save()
                     order.save()
-
                 else:
                     form.add_error('client', "Create a new client or check the box.")
 
-            # Check for a new note in the request POST data
-            note_content = self.request.POST.get('note_content')
+            # Check for photo size
+            if order_photo and order_photo.size > (6 * 1024 * 1024):  # 6 MB
+                form.add_error('order_photo', "File size should not exceed 6 MB.")
 
-            if note_content:
+            # Check for a new note in the request POST data
+            content = self.request.POST.get('content')
+
+            if content:
                 # Create a new note and associate it with the current order
-                note = Note.objects.create(order=order, content=note_content)
+                note = Note.objects.create(order=order, content=content)
                 note.company = self.request.user.company
                 note.user = self.request.user
-                note.order = order
                 note.save()
 
             return redirect(self.get_success_url())
         else:
             return self.form_invalid(form)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['client_form'] = kwargs.get('client_form', ClientCreateForm())
-        return context
+    # After get function
+    # def get_form_kwargs(self):
+    #     kwargs = super().get_form_kwargs()
+    #     kwargs['user'] = self.request.user
+    #     return kwargs
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['client_form'] = kwargs.get('client_form', ClientCreateForm())
+    #     context['order_form'] = kwargs.get('order_form', OrderCreateForm())
+    #     context['note_form'] = kwargs.get('note_form', NoteCreateForm())
+    #     return context
 
 
 class OrderUpdateView(LoginRequiredMixin, generic.UpdateView):
