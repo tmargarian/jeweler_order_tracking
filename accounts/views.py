@@ -18,21 +18,10 @@ TEMPLATES = {
 class UserProfileWizard(SessionWizardView):
     form_list = [(STEP_ONE, UserProfileForm), (STEP_TWO, CompanyForm)]
 
-    # Setting the instance dict
+    # Setting the instance_dict and condition_dict
     def dispatch(self, request, *args, **kwargs):
-        user_profile_instance = UserProfile.objects.get_or_create(
-            user_id=self.request.user.id
-        )[0]
-
-        company_instance = Company.objects.get_or_create(
-            id=self.request.user.company_id
-        )[0]
-
-        User = get_user_model()
-        current_user = User.objects.get(id = self.request.user.id)
-
-        if not current_user.company_id:
-            current_user.company_id = company_instance.id
+        user_profile_instance = UserProfile.objects.get(user_id=self.request.user.id)
+        company_instance = Company.objects.get(id=self.request.user.company_id)
 
         self.instance_dict = {
             STEP_ONE: user_profile_instance,
