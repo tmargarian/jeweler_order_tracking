@@ -164,8 +164,8 @@ AUTHENTICATION_BACKENDS = [
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # TODO: Specify LOGIN/LOGOUT/ACCOUNT REDIRECT URL parameters
-ACCOUNT_SIGNUP_REDIRECT_URL = "user_profile"
-LOGIN_REDIRECT_URL = "order_tracking:order_list"
+ACCOUNT_SIGNUP_REDIRECT_URL = "profile"
+LOGIN_REDIRECT_URL = "profile"
 LOGOUT_REDIRECT_URL = "account_login"
 
 # Use email as default authentication/signup method

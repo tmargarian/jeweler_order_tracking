@@ -27,13 +27,14 @@ class CustomLoginForm(LoginForm):
             Submit("submit", "Sign In", css_class="w-100"),
         )
 
-class UserProfileForm(forms.Form):
+
+class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ("first_name", "last_name", "phone_number")
 
 
-class CompanyForm(forms.Form):
+class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
         fields = ("company_name", "address_lines", "city", "state", "zip_code")
