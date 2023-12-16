@@ -17,7 +17,7 @@ class CustomUser(AbstractUser):
 
 # Secondary data stored in the UserProfile (phone numbers | full name)
 class UserProfile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="profile")
+    user = models.OneToOneField("CustomUser", on_delete=models.CASCADE, related_name="profiles")
     first_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
@@ -26,11 +26,12 @@ class UserProfile(models.Model):
 
 
 class Company(models.Model):
-    company_name = models.CharField(max_length=100)
-    address_lines = models.CharField(max_length=200)
-    city = models.CharField(max_length=100)
-    state = models.CharField(max_length=100)
-    zip_code = models.IntegerField()
+    owner = models.OneToOneField("Owner", on_delete=models.SET_NULL, related_name="owners", null=True)
+    company_name = models.CharField(max_length=100, blank=True, null=True)
+    address_lines = models.CharField(max_length=200, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    zip_code = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -45,7 +46,7 @@ class Owner(models.Model):
     # An owner is tied to a single company and user.
     # A company can't have >1 owner
     # A user can't be related 2 owners
-    company = models.OneToOneField(Company, on_delete=models.CASCADE, related_name="owners")
+    company = models.OneToOneField("Company", on_delete=models.CASCADE, null=True, related_name="owners")
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="owners")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
