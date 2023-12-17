@@ -11,37 +11,28 @@
 {% endblock %}
 
 {% block content %}
-    <p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
     <form action="" method="post">{% csrf_token %}
-    <table>
-    {{ wizard.management_form }}
-    {% if wizard.form.forms %}
-        {{ wizard.form.management_form }}
-        {% for form in wizard.form.forms %}
-            {{ form.as_table }}
+        {{ wizard.management_form }}
+        {% for field in wizard.form %}
+        	{{ field | as_crispy_field }}
         {% endfor %}
-    {% else %}
-        {{ wizard.form }}
-    {% endif %}
-    </table>
-    {% if wizard.steps.prev %}
-        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">
-            first step
-        </button>
-        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">
-            prev step
-        </button>
-    {% endif %}
-    {% if wizard.steps.next %}
-        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.last }}">
-            last step
-        </button>
-        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.next }}">
-            next step
-        </button>
-    {% endif %}
-    {% if wizard.steps.current == wizard.steps.last %}
-        <input type="submit" value="submit" />
-    {% endif %}
 
+        {% if wizard.steps.prev %}
+            <button name="wizard_goto_step"
+                    type="submit"
+                    value="{{ wizard.steps.prev }}"
+                    class="btn btn-primary">
+                prev step
+            </button>
+        {% endif %}
+        {% if wizard.steps.next %}
+            <button name="wizard_goto_step"
+                    type="submit"
+                    value="{{ wizard.steps.next }}"
+                    class="btn btn-primary">
+                next step
+            </button>
+        {% endif %}
+        <input class="btn btn-primary" type="submit" value="submit" />
+    </form>
 {% endblock content %}

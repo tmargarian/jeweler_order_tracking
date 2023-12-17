@@ -1,5 +1,5 @@
+from django.urls import reverse_lazy
 from django.shortcuts import redirect
-from django.contrib.auth import get_user_model
 from formtools.wizard.views import SessionWizardView
 
 
@@ -16,7 +16,9 @@ TEMPLATES = {
 
 
 class UserProfileWizard(SessionWizardView):
-    form_list = [(STEP_ONE, UserProfileForm), (STEP_TWO, CompanyForm)]
+    form_list = [
+        (STEP_ONE, UserProfileForm), (STEP_TWO, CompanyForm)
+    ]
 
     # Setting the instance_dict and condition_dict
     def dispatch(self, request, *args, **kwargs):
@@ -36,15 +38,36 @@ class UserProfileWizard(SessionWizardView):
     def get_form_instance(self, step):
         return self.instance_dict.get(step, None)
 
+    # Need this to save the data on each step
+    def render_goto_step(self, goto_step, **kwargs):
+        form = self.get_form(
+            step=self.steps.current, data=self.request.POST, files=self.request.FILES
+        )
+        print(self.steps)
+
+        if form.is_valid():
+            self.storage.set_step_data(self.steps.current, self.process_step(form))
+            self.storage.set_step_files(
+                self.steps.current, self.process_step_files(form)
+            )
+
+        self.storage.current_step = goto_step
+        form = self.get_form(
+            data=self.storage.get_step_data(self.steps.current),
+            files=self.storage.get_step_files(self.steps.current),
+        )
+
+        return self.render(form, **kwargs)
+
     def done(self, form_list, **kwargs):
         for form in form_list:
             if isinstance(form, UserProfileForm):
-                user_profile = form.save(self.request)
+                user_profile = form.save()
                 user_profile.save()
             elif isinstance(form, CompanyForm):
-                company_profile = form.save(self.request)
+                company_profile = form.save()
                 company_profile.save()
-        return redirect("order_list")
+        return redirect(reverse_lazy("order_tracking:order_list"))
 
     def user_profile_incomplete(self):
         profile_instance = self.get_form_instance(STEP_ONE)
@@ -73,6 +96,6 @@ class UserProfileWizard(SessionWizardView):
         return False
 
     condition_dict = {
-        STEP_ONE: user_profile_incomplete,
-        STEP_TWO: company_incomplete,
+        STEP_ONE: True,
+        STEP_TWO: True,
     }

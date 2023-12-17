@@ -13,7 +13,9 @@ class CustomUser(AbstractUser):
     is_employee = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    # Keeping these columns in the UserProfile
+    first_name = None
+    last_name = None
 
 # Secondary data stored in the UserProfile (phone numbers | full name)
 class UserProfile(models.Model):
