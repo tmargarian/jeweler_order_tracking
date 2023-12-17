@@ -12,13 +12,13 @@ def create_user_profile(sender, **kwargs):
     user_profile = UserProfile(user_id=kwargs["user"].id)
     user_profile.save()
 
+
 @receiver(user_signed_up)
 def create_owner(sender, **kwargs):
-    owner = Owner(
-        user_id=kwargs["user"].id
-    )
+    owner = Owner(user_id=kwargs["user"].id)
 
     owner.save()
+
 
 @receiver(user_signed_up)
 def create_company(sender, **kwargs):
@@ -35,4 +35,3 @@ def create_company(sender, **kwargs):
     owner.company_id = company.id
     current_user.save()
     owner.save()
-

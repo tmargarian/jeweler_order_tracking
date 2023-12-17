@@ -1,4 +1,4 @@
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.shortcuts import redirect
 from formtools.wizard.views import SessionWizardView
 
@@ -20,7 +20,7 @@ class UserProfileWizard(SessionWizardView):
         (STEP_ONE, UserProfileForm), (STEP_TWO, CompanyForm)
     ]
 
-    # Setting the instance_dict and condition_dict
+    # Setting the instance_dict
     def dispatch(self, request, *args, **kwargs):
         user_profile_instance = UserProfile.objects.get(user_id=self.request.user.id)
         company_instance = Company.objects.get(id=self.request.user.company_id)
@@ -67,35 +67,4 @@ class UserProfileWizard(SessionWizardView):
             elif isinstance(form, CompanyForm):
                 company_profile = form.save()
                 company_profile.save()
-        return redirect(reverse_lazy("order_tracking:order_list"))
-
-    def user_profile_incomplete(self):
-        profile_instance = self.get_form_instance(STEP_ONE)
-
-        if (  # Checking if any of the profile fields is empty -> Trigger form
-            not profile_instance.first_name
-            or not profile_instance.last_name
-            or not profile_instance.phone_number
-        ):
-            return True
-
-        return False
-
-    def company_incomplete(self):
-        company_instance = self.get_form_instance(STEP_TWO)
-
-        if (
-            not company_instance.company_name
-            or not company_instance.address_lines
-            or not company_instance.city
-            or not company_instance.state
-            or not company_instance.zip_code
-        ):
-            return True
-
-        return False
-
-    condition_dict = {
-        STEP_ONE: True,
-        STEP_TWO: True,
-    }
+        return redirect(reverse("order_tracking:order_list"))

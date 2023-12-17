@@ -17,6 +17,7 @@ class CustomUser(AbstractUser):
     first_name = None
     last_name = None
 
+
 # Secondary data stored in the UserProfile (phone numbers | full name)
 class UserProfile(models.Model):
     user = models.OneToOneField("CustomUser", on_delete=models.CASCADE, related_name="profiles")
