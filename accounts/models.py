@@ -39,7 +39,7 @@ class Company(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.company_name
+        return self.company_name if self.company_name else str(self.id)
 
     class Meta:
         verbose_name_plural = "companies"
