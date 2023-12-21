@@ -1,10 +1,11 @@
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse
 from django.shortcuts import redirect
+from django.http import JsonResponse
 from formtools.wizard.views import SessionWizardView
 
 
 from .forms import UserProfileForm, CompanyForm
-from .models import UserProfile, Company
+from .models import UserProfile, Company, ZipToAddressLookup
 
 STEP_ONE = "0"
 STEP_TWO = "1"
@@ -16,9 +17,7 @@ TEMPLATES = {
 
 
 class UserProfileWizard(SessionWizardView):
-    form_list = [
-        (STEP_ONE, UserProfileForm), (STEP_TWO, CompanyForm)
-    ]
+    form_list = [(STEP_ONE, UserProfileForm), (STEP_TWO, CompanyForm)]
 
     # Setting the instance_dict
     def dispatch(self, request, *args, **kwargs):
@@ -32,6 +31,17 @@ class UserProfileWizard(SessionWizardView):
 
         return super(UserProfileWizard, self).dispatch(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        # AJAX handling for City/State autocomplete using Zip Code
+        is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
+        if is_ajax:
+            zip_code = request.headers.get("zipCode")
+            address = ZipToAddressLookup.objects.get(zip=zip_code)
+            return JsonResponse({"city": address.city, "state": address.state_short})
+
+        super().get(request, *args, **kwargs)
+
     def get_template_names(self):
         return [TEMPLATES[self.steps.current]]
 
@@ -43,7 +53,6 @@ class UserProfileWizard(SessionWizardView):
         form = self.get_form(
             step=self.steps.current, data=self.request.POST, files=self.request.FILES
         )
-        print(self.steps)
 
         if form.is_valid():
             self.storage.set_step_data(self.steps.current, self.process_step(form))

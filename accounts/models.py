@@ -34,7 +34,7 @@ class Company(models.Model):
     address_lines = models.CharField(max_length=200, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
     state = models.CharField(max_length=100, blank=True, null=True)
-    zip_code = models.IntegerField(blank=True, null=True)
+    zip_code = models.CharField(max_length=10, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -62,3 +62,13 @@ class Employee(models.Model):
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class ZipToAddressLookup(models.Model):
+    zip = models.CharField(max_length=5, unique=True, primary_key=True)
+    city = models.CharField(max_length=40)
+    state_short = models.CharField(max_length=2)
+    state_long = models.CharField(max_length=40)
+    county = models.CharField(max_length=40, null=True)
+    country = models.CharField(max_length=60, null=True)
+    timezone = models.CharField(max_length=40, null=True)
