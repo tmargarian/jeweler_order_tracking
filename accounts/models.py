@@ -16,6 +16,7 @@ class CustomUser(AbstractUser):
     # Keeping these columns in the UserProfile
     first_name = None
     last_name = None
+    phone_number = None
 
 
 # Secondary data stored in the UserProfile (phone numbers | full name)

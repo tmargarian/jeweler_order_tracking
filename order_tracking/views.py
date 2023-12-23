@@ -1,12 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import reverse, redirect, render
+from django.shortcuts import reverse, redirect
 from django.views.generic.edit import FormView
 from django.views import generic
 from django.http import QueryDict, JsonResponse
 from django.views import View
 
-from .forms import OrderCreateForm, ClientCreateForm, NoteCreateForm
-from .models import Client, Note, Order
+from .forms import OrderCreateForm
+from .models import Note, Order, Client
 from .mixins import ProfileCompletionRequiredMixin
 
 
@@ -57,101 +57,51 @@ class OrderListView(
 
 class OrderCreateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormView):
     template_name = "order_tracking/order_create.html"
-
-    def get_success_url(self):
-        return reverse("order_tracking:order_list")
-
-    def get(self, request, *args, **kwargs):
-        client_form = ClientCreateForm()
-        order_form = OrderCreateForm()
-        note_form = NoteCreateForm()
-        return render(
-            request,
-            self.template_name,
-            {
-                "client_form": client_form,
-                "order_form": order_form,
-                "note_form": note_form,
-            },
-        )
+    context_object_name = "order_create"
+    form_class = OrderCreateForm
+    form = OrderCreateForm()
+    success_url = "order_tracking:order_list"
 
     def form_valid(self, form):
-        client_already_exists = self.request.POST.get("client_already_exists")
-        client_form = ClientCreateForm(self.request.POST)
-        order_form = OrderCreateForm(self.request.POST, self.request.FILES)
-        note_form = NoteCreateForm(self.request.POST)
+        client_already_exists = self.request.POST.get('client_already_exists')
 
-        if order_form.is_valid() and client_form.is_valid() and note_form.is_valid():
+        if form.is_valid():
+            user = self.request.user
             order = form.save(commit=False)
-            order.company = self.request.user.company
-            order.user = self.request.user
-            order_photo = self.request.FILES.get("order_photo")
 
-            # If client exists and is selected in the dropdown
+            order.company = user.company
+            order.user = user
+
             if client_already_exists is True:
-                if (
-                    "client" in order_form.cleaned_data
-                    and order_form.cleaned_data["client"]
-                ):
-                    order.client = order_form.cleaned_data["client"]
-                    order.save()
-                else:
-                    form.add_error(
-                        "client",
-                        "Client must be selected when Client Already Exists is checked.",
-                    )
+                order.client = form.cleaned_data["client"]
+                order.save()
 
             if client_already_exists is False:
-                if (
-                    "first_name" in client_form.cleaned_data
-                    and "last_name" in client_form.cleaned_data
-                    and "phone_number" in client_form.cleaned_data
-                ):
-                    client = Client.objects.create(
-                        company=self.request.user.company,
-                        user=self.request.user,
-                        order=order,
-                        first_name=client_form.cleaned_data["first_name"],
-                        last_name=client_form.cleaned_data["last_name"],
-                        email=client_form.cleaned_data["email"],
-                        phone_number=client_form.cleaned_data["phone_number"],
-                    )
-                    order.client = client
-                    client.save()
-                    order.save()
-                else:
-                    form.add_error("client", "Create a new client or check the box.")
+                client = Client.objects.create(
+                    company=user.company,
+                    user=user,
+                    first_name=form.cleaned_data["first_name"],
+                    last_name=form.cleaned_data["last_name"],
+                    phone_number=form.cleaned_data["phone_number"],
+                    email=form.cleaned_data["email"]
+                )
+                client.save()
+                order.client = client
+                order.save()
 
-            # Check for photo size
-            if order_photo and order_photo.size > (6 * 1024 * 1024):  # 6 MB
-                form.add_error("order_photo", "File size should not exceed 6 MB.")
-
-            # Check for a new note in the request POST data
-            content = self.request.POST.get("content")
-
+            content = form.cleaned_data["content"]
             if content:
-                # Create a new note and associate it with the current order
-                note = Note.objects.create(order=order, content=content)
-                note.company = self.request.user.company
-                note.user = self.request.user
+                note = Note.objects.create(
+                    user=user,
+                    order=order,
+                    content=content
+                )
                 note.save()
 
             return redirect(self.get_success_url())
+
         else:
             return self.form_invalid(form)
-
-    # After get function
-    # def get_form_kwargs(self):
-    #     kwargs = super().get_form_kwargs()
-    #     kwargs['user'] = self.request.user
-    #     return kwargs
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['client_form'] = kwargs.get('client_form', ClientCreateForm())
-    #     context['order_form'] = kwargs.get('order_form', OrderCreateForm())
-    #     context['note_form'] = kwargs.get('note_form', NoteCreateForm())
-    #     return context
 
 
 class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormView):
@@ -163,7 +113,7 @@ class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Filter notes associated with the order, excluding deleted notes
-        context["notes"] = Note.objects.filter(order=self.object, deleted_flag=False)
+        context["notes"] = Note.objects.filter(self.object, deleted_flag=False)
         return context
 
     def get_success_url(self):
