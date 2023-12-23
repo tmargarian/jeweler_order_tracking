@@ -1,7 +1,9 @@
 from django.contrib.auth.models import AbstractUser
-from localflavor.us.models import USZipCodeField, USStateField
 from django.conf import settings
 from django.db import models
+
+from localflavor.us.models import USZipCodeField, USStateField
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 # Crucial data will be stored in CustomUser; this is what's necessary to finish Signup
@@ -24,7 +26,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField("CustomUser", on_delete=models.CASCADE, related_name="profiles")
     first_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True, null=True)
-    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    phone_number = PhoneNumberField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 

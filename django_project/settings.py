@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third-Party
     "localflavor",
+    "phonenumber_field",
     "formtools",
     "djstripe",
     "crispy_forms",

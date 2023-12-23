@@ -4,6 +4,8 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.core.exceptions import ValidationError
 
 from localflavor.us.forms import USZipCodeField
+from phonenumber_field.formfields import PhoneNumberField
+from phonenumber_field.validators import validate_international_phonenumber
 from allauth.account.forms import LoginForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import *
@@ -31,15 +33,34 @@ class CustomLoginForm(LoginForm):
 
 
 class UserProfileForm(forms.ModelForm):
+    phone_number = PhoneNumberField(region='US', required=False)
+
     class Meta:
         model = UserProfile
         fields = ("first_name", "last_name", "phone_number")
 
+    def clean_first_name(self):
+        first_name = self.cleaned_data['first_name']
+        if not first_name:
+            raise ValidationError("Please Fill out the First Name!")
+
+        return first_name
+
+    def clean_last_name(self):
+        last_name = self.cleaned_data['last_name']
+        if not last_name:
+            raise ValidationError("Please Fill out the Last Name!")
+
+        return last_name
+
+
 
 class CompanyForm(forms.ModelForm):
     # Overriding the default error message (it features 5 AND 9 digit zips like 94089-1690)
-    zip_code = USZipCodeField(error_messages={'invalid': 'Enter a zip code in the format XXXXX.'},
-                              required=False)
+    zip_code = USZipCodeField(
+        error_messages={"invalid": "Enter a zip code in the format XXXXX."},
+        required=False,
+    )
 
     class Meta:
         model = Company

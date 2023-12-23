@@ -43,7 +43,6 @@ class UserProfileWizard(SessionWizardView):
         get_response = super().get(request, *args, **kwargs)
         return get_response
 
-
     def get_template_names(self):
         return [TEMPLATES[self.steps.current]]
 
@@ -52,16 +51,25 @@ class UserProfileWizard(SessionWizardView):
 
     # Need this to save the data on each step
     def render_goto_step(self, goto_step, **kwargs):
+        """We can't move to second step if the first one is incomplete,
+        but we can move back to first step with the second one incomplete.
+        Submission should be possible with both forms valid."""
+
+        # Current step form
         form = self.get_form(
             step=self.steps.current, data=self.request.POST, files=self.request.FILES
         )
 
-        if form.is_valid():
-            self.storage.set_step_data(self.steps.current, self.process_step(form))
-            self.storage.set_step_files(
-                self.steps.current, self.process_step_files(form)
-            )
+        # On the first step - render the same form if it's invalid
+        if self.steps.current == STEP_ONE and not form.is_valid():
+            return self.render(form, **kwargs)
 
+        # For both steps (first step | valid only; second step | valid or invalid)
+        # Save the current step data and files
+        self.storage.set_step_data(self.steps.current, self.process_step(form))
+        self.storage.set_step_files(self.steps.current, self.process_step_files(form))
+
+        # Move to next step
         self.storage.current_step = goto_step
         form = self.get_form(
             data=self.storage.get_step_data(self.steps.current),
