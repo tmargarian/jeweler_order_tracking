@@ -14,23 +14,13 @@ class Order(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="orders")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
     client = models.ForeignKey("Client", on_delete=models.CASCADE, related_name="orders", blank=True, null=True)
-    order_date = models.DateField(default=timezone.now)
-    order_due_date = models.DateField(default=timezone.now)
-    estimated_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    quoted_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    security_deposit = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    order_type = models.CharField(choices=[
-        ('Purchase', 'Purchase'),
-        ('Repair', 'Repair'),
-        ('Other', 'Other')],
-        max_length=100,
-        default='1')
-    order_status = models.CharField(choices=[
-        ('In Progress', 'In Progress'),
-        ('Completed', 'Completed'),
-        ('Canceled', 'Canceled')],
-        max_length=100,
-        default='1')
+    order_date = models.DateField()
+    order_due_date = models.DateField()
+    estimated_cost = models.DecimalField(decimal_places=2, max_digits=10)
+    quoted_price = models.DecimalField(decimal_places=2, max_digits=10)
+    security_deposit = models.DecimalField(decimal_places=2, max_digits=10)
+    order_type = models.CharField()
+    order_status = models.CharField()
     order_photo = models.ImageField(upload_to="order_photos/", blank=True, null=True)
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -91,14 +81,14 @@ class Order(models.Model):
 
 class Client(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    client_already_exists = models.BooleanField(choices=[(True, 'Yes'), (False, 'No')], default=False)
+    client_already_exists = models.BooleanField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="clients")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="clients")
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=20)
-    email = models.EmailField(max_length=100)
-    total_spent = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    first_name = models.CharField()
+    last_name = models.CharField()
+    phone_number = models.CharField()
+    email = models.EmailField()
+    total_spent = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, blank=True, null=True)
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -112,10 +102,9 @@ class Client(models.Model):
 
 class Note(models.Model):
     id = models.BigAutoField(primary_key=True, editable=False)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="notes")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes")
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="notes")
-    content = models.TextField(blank=True, null=True, default=None)
+    content = models.TextField(null=True, blank=True)
     timestamp = models.DateTimeField(default=timezone.now)
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
