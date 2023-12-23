@@ -40,7 +40,10 @@ class UserProfileWizard(SessionWizardView):
             address = ZipToAddressLookup.objects.get(zip=zip_code)
             return JsonResponse({"city": address.city, "state": address.state_short})
 
-        super().get(request, *args, **kwargs)
+        print("non-Ajax Request")
+        get_response = super().get(request, *args, **kwargs)
+        return get_response
+
 
     def get_template_names(self):
         return [TEMPLATES[self.steps.current]]
