@@ -40,7 +40,6 @@ class UserProfileWizard(SessionWizardView):
             address = ZipToAddressLookup.objects.get(zip=zip_code)
             return JsonResponse({"city": address.city, "state": address.state_short})
 
-        print("non-Ajax Request")
         get_response = super().get(request, *args, **kwargs)
         return get_response
 

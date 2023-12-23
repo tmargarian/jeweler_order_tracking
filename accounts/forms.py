@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.core.exceptions import ValidationError
 
+from localflavor.us.forms import USZipCodeField
 from allauth.account.forms import LoginForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import *
@@ -36,6 +37,10 @@ class UserProfileForm(forms.ModelForm):
 
 
 class CompanyForm(forms.ModelForm):
+    # Overriding the default error message (it features 5 AND 9 digit zips like 94089-1690)
+    zip_code = USZipCodeField(error_messages={'invalid': 'Enter a zip code in the format XXXXX.'},
+                              required=False)
+
     class Meta:
         model = Company
         fields = ("company_name", "zip_code", "address_lines", "city", "state")
@@ -48,18 +53,10 @@ class CompanyForm(forms.ModelForm):
         return company_name
 
     def clean_zip_code(self):
+        # Most of the cleaning if performed by localflavor package
         zip_code = self.cleaned_data["zip_code"]
         if not zip_code:
             raise ValidationError("Please fill out the Zip Code!")
-
-        if ' ' in zip_code:
-            raise ValidationError("Please remove spaces from the Zip Code!")
-
-        if not zip_code.isdigit():  # Checks if all characters are digits
-            raise ValidationError("Please use numbers in the Zip Code!")
-
-        if len(zip_code) != 5:
-            raise ValidationError("Please enter a 5-digit US Zip Code!")
 
         return zip_code
 
