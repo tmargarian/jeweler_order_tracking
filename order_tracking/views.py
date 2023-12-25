@@ -72,11 +72,11 @@ class OrderCreateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormVi
             order.company = user.company
             order.user = user
 
-            if client_already_exists == 'True':
+            if client_already_exists:
                 order.client = form.cleaned_data["client"]
                 order.save()
 
-            if client_already_exists == 'False':
+            if not client_already_exists:
                 client = Client.objects.create(
                     company=user.company,
                     user=user,
