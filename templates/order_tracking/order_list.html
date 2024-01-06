@@ -9,26 +9,8 @@
             <th scope="col">Client Name</th>
             <th class="text-center" scope="col">Order Status</th>
             <th scope="col">Order Type</th>
-            <th scope="col">
-                <a href="?{{ order_status_query_string }}&{{ client_ids_query_string }}{% if request.GET.sort_by == 'order_date' %}&sort_by=-order_date {% else %}&sort_by=order_date{% endif %}">
-                    Order Date
-                </a>                
-                {% if request.GET.sort_by == "order_date" %}
-                    &uarr;
-                {% elif request.GET.sort_by == "-order_date" %}
-                    &darr;
-                {% endif %}
-            </th>
-            <th scope="col">
-                <a href="?{{ order_status_query_string }}&{{ client_ids_query_string }}{% if request.GET.sort_by == 'order_due_date' %}&sort_by=-order_due_date{% else %}&sort_by=order_due_date{% endif %}">
-                    Due Date
-                </a>
-                {% if request.GET.sort_by == "order_due_date" %}
-                    &uarr;
-                {% elif request.GET.sort_by == "-order_due_date" %}
-                    &darr;
-                {% endif %}
-            </th>
+            <th scope="col">Order Date</th>
+            <th scope="col">Due Date</th>
             <th scope="col">Order Price</th>
             <th scope="col">Actions</th>
         </thead>
@@ -49,9 +31,7 @@
                 <td>{{ order_list.client.first_name }} {{ order_list.client.last_name }}</td>
 
 
-                <td class="text-center">
-                    {{ order_list.order_status }}
-                </td>
+                <td>{{ order_list.order_status }}</td>
 
                 <td>{{ order_list.order_type }}</td>
                 <td>{{ order_list.order_date }}</td>

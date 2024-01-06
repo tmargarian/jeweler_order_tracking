@@ -16,42 +16,13 @@ class OrderListView(
     template_name = "order_tracking/order_list.html"
     context_object_name = "order_list"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Order status setup
-        context["all_possible_statuses"] = ["Completed", "Cancelled", "In Progress"]
-        context["selected_statuses"] = self.request.GET.getlist("order_status")
-
-        ordert_statuses_query_dict = QueryDict(mutable=True)
-        ordert_statuses_query_dict.setlist(
-            "order_status", self.request.GET.getlist("order_status")
-        )
-        context["order_status_query_string"] = ordert_statuses_query_dict.urlencode()
-
     def get_queryset(self):
         user = self.request.user
-        statuses = self.request.GET.getlist("order_status", None)
-        client_ids = self.request.GET.getlist("client_id", None)
-        sort_by = self.request.GET.get("sort_by", "-created_at")
         queryset = (
             Order.objects.filter(company=user.company)
             .filter(deleted_flag=False)
             .filter(client__company=user.company)
         )
-
-        if sort_by.replace("-", "") not in ["order_date", "order_due_date"]:
-            sort_by = "-created_at"
-
-            if statuses:
-                queryset = queryset.filter(order_status__in=statuses)
-
-            if client_ids:
-                queryset = queryset.filter(client__id__in=client_ids)
-
-            queryset = queryset.order_by(sort_by)
-        else:
-            return KeyError("User does not have permission to view orders")
         return queryset
 
 
