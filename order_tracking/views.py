@@ -77,20 +77,19 @@ class OrderCreateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormVi
             return self.form_invalid(form)
 
 
-class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormView):
+class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
     model = Order
     template_name = "order_tracking/order_update.html"
     form_class = OrderCreateForm
+    form = OrderCreateForm()
     context_object_name = "order_update"
+    success_url = "order_tracking:order_list"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Filter notes associated with the order, excluding deleted notes
-        context["notes"] = Note.objects.filter(self.object, deleted_flag=False)
+        context["notes"] = Note.objects.filter(order=self.object, deleted_flag=False)
         return context
-
-    def get_success_url(self):
-        return reverse("order_tracking:order_list")
 
     def get_form_kwargs(self):
         kwargs = super(OrderUpdateView, self).get_form_kwargs()
@@ -104,22 +103,16 @@ class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormVi
     def form_valid(self, form):
         user = self.request.user
         order = form.save(commit=False)
-        order_photo = self.request.FILES.get("order_photo")
-
-        if order_photo and order_photo.size > (6 * 1024 * 1024):  # 6 MB
-            form.add_error("order_photo", "File size should not exceed 6 MB.")
-            return self.form_invalid(form)
 
         order.save()
 
         # Check for a new note in the request POST data
-        note_content = self.request.POST.get("note_content")
+        note_content = self.request.POST.get("content")
         note_action = self.request.META.get("HTTP_X_NOTE_ACTION")
 
         if note_content and note_action == "create":
             # Create a new note and associate it with the current order
             note = Note.objects.create(order=order, content=note_content)
-            note.company = user.company
             note.user = user
             note.order = order
             note.save()
