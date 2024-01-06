@@ -73,6 +73,11 @@ class Order(models.Model):
             os.remove(self.order_photo.path)
             os.rename(temp_path, self.order_photo.path)
 
+    def __str__(self):
+        return str('Order by' + " " + self.company.company_name + " " +
+                   ' for ' + self.client.first_name + " " + self.client.last_name
+                   if self.client else str(self.id))
+
     def delete(self, using=None, keep_parents=False):
         Note.objects.filter(order=self).update(deleted_flag=True)
         self.deleted_flag = True
@@ -93,6 +98,9 @@ class Client(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.first_name + " " + self.last_name if self.first_name and self.last_name else str(self.id)
+
     def delete(self, using=None, keep_parents=False):
         self.deleted_flag = True
         Order.objects.filter(company=self.company).update(deleted_flag=True)
@@ -109,6 +117,9 @@ class Note(models.Model):
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str('Note by' + ' ' + self.user.email + ' for Order #' + str(self.order.id))
 
     def delete(self, using=None, keep_parents=False):
         self.deleted_flag = True

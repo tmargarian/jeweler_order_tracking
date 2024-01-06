@@ -31,6 +31,9 @@ class UserProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.first_name + " " + self.last_name if self.first_name and self.last_name else str(self.id)
+
 
 class Company(models.Model):
     owner = models.OneToOneField("Owner", on_delete=models.SET_NULL, related_name="owners", null=True)
@@ -57,6 +60,9 @@ class Owner(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="owners")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.company) if self.company else str(self.id)
 
 
 class Employee(models.Model):
