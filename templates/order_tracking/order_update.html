@@ -14,8 +14,9 @@
                 {% csrf_token %}
                 {% crispy form %}
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-             <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <button type="button" id="add-note-button" class="btn btn-primary custom-add-note-button">Add Note</button>
+            <div class="col-md-4">
                 <div class="order-notes text-center">
                     <label>Notes Log</label>
                     <ul class="order-note-list">
@@ -31,102 +32,61 @@
             </div>
 
             <script>
-                // Get the checkbox and the fields to be disabled
-                const select = document.querySelector('#id_client_already_exists');
-                const fieldsToDisableUser = [
-                    document.querySelector('#id_first_name'),
-                    document.querySelector('#id_last_name'),
-                    document.querySelector('#id_email'),
-                    document.querySelector('#id_phone_number'),
-                ];
-                const fieldsToDisableClient = [
-                    document.querySelector('#id_client'),
-                ];
+                document.addEventListener('DOMContentLoaded', function () {
+                    // Add an event listener for the "Add Note" button
+                    document.getElementById('add-note-button').addEventListener('click', function () {
+                        const noteContent = document.getElementById('id_content').value.trim();
 
-                // Function to toggle the disabled attribute on fields
-                function toggleFieldsDisabled() {
-                    const isClientExists = select.value === 'True';
-                    const isClientDropdownDisabled = select.value === 'False';
-                    fieldsToDisableUser.forEach(field => {
-                        field.disabled = isClientExists;
-                    });
-                    fieldsToDisableClient.forEach(field => {
-                        if (field.id === 'id_client') {
-                            field.disabled = isClientDropdownDisabled;
-                        } else {
-                            field.disabled = isClientExists;
+                        if (noteContent !== '') {
+                            const formData = new FormData();
+                            formData.append('content', noteContent);
+
+                            fetch('{% url "order_tracking:note_update" pk=object.pk %}', {
+                                method: "POST",
+                                body: formData,
+                                headers: {
+                                    "X-CSRFToken": getCookie("csrftoken"),
+                                    "X-Note-Action": "create",
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Construct the new note element and add it to the list
+                                    const noteElement = document.createElement('li');
+                                    noteElement.innerHTML = `
+                                       <div class="note-content">${noteContent}</div>
+                                       <div class="note-timestamp">${data.timestamp}</div>
+                                       <button class="note-delete" data-note-id="${data.note_id}" data-delete-url="{% url 'order_tracking:note_delete' 0 %}">X</button>
+                                    `;
+
+                                    const noteList = document.querySelector('.order-note-list');
+                                    noteList.appendChild(noteElement);
+
+                                    // Clear the note content input field
+                                    document.getElementById('id_content').value = '';
+                                } else {
+                                    console.error("Error adding note:", data.error);
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error adding note:", error);
+                            });
                         }
                     });
-                }
-                // Initially set the field states and add an event listener
-                toggleFieldsDisabled();
-                select.addEventListener('change', toggleFieldsDisabled);
-            </script>
 
-            <script>
-                // Get the checkbox and the fields to be disabled
-                document.getElementById('add-note-button').addEventListener('click', function () {
-                    const noteContent = document.getElementById('id_note_content').value;
-                    if (noteContent.trim() !== '') {
-                        // Create a new FormData object
-                        const formData = new FormData();
-                        formData.append('note_content', noteContent); // Append the note content to the form data
-                        console.log("FormData:", formData);
-                        // Send an AJAX request to add the note
-                        fetch('{% url "order_tracking:note_update" pk=object.pk %}', {
-                            method: "POST",
-                            body: formData,
-                            headers: {
-                                "X-CSRFToken": getCookie("csrftoken"),
-                                "X-Note-Action": "create",
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Construct the new note element and add it to the list
-                                const noteElement = document.createElement('li');
-                                noteElement.innerHTML = `
-                                   <div class="note-content">${noteContent}</div>
-                                   <div class="note-timestamp">${data.timestamp}</div>
-                                   <button class="note-delete" data-note-id="${data.note_id}" data-delete-url="{% url 'order_tracking:note_delete' 0 %}">X</button>
-                                `;
-                                const noteList = document.querySelector('.order-note-list');
-                                noteList.appendChild(noteElement);
-                                // Clear the note content input field
-                                document.getElementById('id_note_content').value = '';
-                                // Reload the page to reflect the note addition
-                                location.reload();
-                            } else {
-                                console.error("Error adding note:", data.error);
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error adding note:", error);
-                        });
-                    }
-                });
-
-
-
-
-                document.addEventListener('DOMContentLoaded', function () {
                     // Add an event listener for the "X" buttons
                     document.querySelectorAll('.note-delete').forEach(function (button) {
                         button.addEventListener('click', function () {
                             const noteId = button.getAttribute('data-note-id');
                             const deleteUrl = button.getAttribute('data-delete-url');
-                            // Create a new FormData object
-                            const formData = new FormData();
-                            formData.append('note_id', noteId); // Append the note_id to the form data
-                            // Debugging: Log the URL and noteId to the console
-                            console.log('Delete URL:', deleteUrl);
-                            console.log('Note ID:', noteId);
 
-                            // Send an AJAX request to delete the note with the note_id
+                            const formData = new FormData();
+                            formData.append('note_id', noteId);
+
                             fetch(deleteUrl, {
                                 method: "POST",
-                                body: formData, // Send the note_id in the request body
+                                body: formData,
                                 headers: {
                                     "X-CSRFToken": getCookie("csrftoken")
                                 }
@@ -134,8 +94,8 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    // Reload the page to reflect the soft deletion
-                                    location.reload();
+                                    // Remove the deleted note element from the list
+                                    button.closest('li').remove();
                                 } else {
                                     console.error("Error deleting note:", data.error);
                                 }
@@ -147,8 +107,6 @@
                     });
                 });
 
-
-
                 // Function to get the CSRF token
                 function getCookie(name) {
                     let cookieValue = null;
@@ -156,7 +114,6 @@
                         const cookies = document.cookie.split(";");
                         for (let i = 0; i < cookies.length; i++) {
                             const cookie = cookies[i].trim();
-                            // Does this cookie string begin with the name we want?
                             if (cookie.substring(0, name.length + 1) === name + "=") {
                                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                                 break;
@@ -165,9 +122,7 @@
                     }
                     return cookieValue;
                 }
-
             </script>
-
 
             <style>
                 .order-notes {

@@ -5,7 +5,7 @@ from django.views import generic
 from django.http import QueryDict, JsonResponse
 from django.views import View
 
-from .forms import OrderCreateForm
+from .forms import OrderCreateForm, OrderUpdateForm
 from .models import Note, Order, Client
 from .mixins import ProfileCompletionRequiredMixin
 
@@ -18,11 +18,10 @@ class OrderListView(
 
     def get_queryset(self):
         user = self.request.user
-        queryset = (
-            Order.objects.filter(company=user.company)
-            .filter(deleted_flag=False)
+        queryset = Order.objects \
+            .filter(company=user.company) \
+            .filter(deleted_flag=False) \
             .filter(client__company=user.company)
-        )
         return queryset
 
 
@@ -80,10 +79,12 @@ class OrderCreateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormVi
 class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
     model = Order
     template_name = "order_tracking/order_update.html"
-    form_class = OrderCreateForm
-    form = OrderCreateForm()
+    form_class = OrderUpdateForm
+    form = OrderUpdateForm()
     context_object_name = "order_update"
-    success_url = "order_tracking:order_list"
+
+    def get_success_url(self):
+        return reverse("order_tracking:order_list")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -96,10 +97,6 @@ class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
         kwargs["user"] = self.request.user
         return kwargs
 
-    def get_queryset(self):
-        user = self.request.user
-        return Order.objects.filter(company=user.company)
-
     def form_valid(self, form):
         user = self.request.user
         order = form.save(commit=False)
@@ -107,20 +104,22 @@ class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
         order.save()
 
         # Check for a new note in the request POST data
-        note_content = self.request.POST.get("content")
+        content = self.request.POST.get("content")
         note_action = self.request.META.get("HTTP_X_NOTE_ACTION")
 
-        if note_content and note_action == "create":
+        if content and note_action == "create":
             # Create a new note and associate it with the current order
-            note = Note.objects.create(order=order, content=note_content)
-            note.user = user
-            note.order = order
+            note = Note.objects.create(
+                user=user,
+                order=order,
+                content=content
+            )
             note.save()
 
         return super().form_valid(form)
 
 
-class OrderDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormView):
+class OrderDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.DeleteView):
     template_name = "order_tracking/order_delete.html"
     context_object_name = "order_delete"
 
@@ -129,22 +128,22 @@ class OrderDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormVi
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Order.objects.filter(company=user.company)
-        queryset = queryset.filter(client__company=user.company)
+        queryset = Order.objects \
+            .filter(company=user.company) \
+            .filter(client__company=user.company)
         return queryset
 
 
-class NoteUpdateView(LoginRequiredMixin, View):
+class NoteUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
     @staticmethod
     def post(request, pk):
-        note_content = request.POST.get("note_content")
-        if note_content:
+        content = request.POST.get("content")
+        if content:
             # Create a new note and associate it with the order (pk)
             note = Note.objects.create(
                 order_id=pk,
-                content=note_content,
+                content=content,
                 user=request.user,
-                company=request.user.company,
             )
             return JsonResponse(
                 {"success": True, "note_id": note.id, "timestamp": note.timestamp}
@@ -153,7 +152,7 @@ class NoteUpdateView(LoginRequiredMixin, View):
             return JsonResponse({"success": False, "error": "Invalid note content."})
 
 
-class NoteDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormView):
+class NoteDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.DeleteView):
     @staticmethod
     def post(request, *args, **kwargs):
         try:

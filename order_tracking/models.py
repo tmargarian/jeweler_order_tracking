@@ -79,7 +79,10 @@ class Order(models.Model):
                    if self.client else str(self.id))
 
     def delete(self, using=None, keep_parents=False):
+        # Soft delete associated notes
         Note.objects.filter(order=self).update(deleted_flag=True)
+
+        # Soft delete the order
         self.deleted_flag = True
         self.save()
 
