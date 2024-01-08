@@ -128,22 +128,23 @@ class OrderDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Order.objects \
-            .filter(company=user.company) \
-            .filter(client__company=user.company)
+        if user.is_owner:
+            queryset = Order.objects.filter(company=user.company)
+            queryset = queryset.filter(client__company=user.company)
+        else:
+            return KeyError("User does not have permission to delete orders")
         return queryset
 
 
 class NoteUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
-    @staticmethod
-    def post(request, pk):
-        content = request.POST.get("content")
+    def post(self, request, pk):
+        content = self.request.POST.get("content")
         if content:
             # Create a new note and associate it with the order (pk)
             note = Note.objects.create(
                 order_id=pk,
                 content=content,
-                user=request.user,
+                user=self.request.user,
             )
             return JsonResponse(
                 {"success": True, "note_id": note.id, "timestamp": note.timestamp}
@@ -153,23 +154,30 @@ class NoteUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic
 
 
 class NoteDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.DeleteView):
-    @staticmethod
-    def post(request, *args, **kwargs):
-        try:
-            note_id = request.POST.get("note_id")
-            print("Received note ID:", note_id)
-            note = Note.objects.get(pk=note_id)
-            if note_id is not None:
-                int(note_id)
+    def post(self, request, *args, **kwargs):
+        note = Note.objects.get(pk=self.kwargs["pk"])
+        if note:
+            note.deleted_flag = True
+            note.save()
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"success": False, "error": "Invalid note ID."})
 
-                # Soft delete the note by setting the `deleted_flag` to True
-                note.deleted_flag = True
-                note.save()
-
-                return JsonResponse({"success": True})
-            else:
-                return JsonResponse(
-                    {"success": False, "error": "Note ID is missing or not valid"}
-                )
-        except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)})
+    # def post(self, request, *args, **kwargs):
+    #     try:
+    #         note_id = self.request.POST.get("note_id")
+    #         note = Note.objects.get(pk=note_id)
+    #         if note_id is not None:
+    #             int(note_id)
+    #
+    #             # Soft delete the note by setting the `deleted_flag` to True
+    #             note.deleted_flag = True
+    #             note.save()
+    #
+    #             return JsonResponse({"success": True})
+    #         else:
+    #             return JsonResponse(
+    #                 {"success": False, "error": "Note ID is missing or not valid"}
+    #             )
+    #     except Exception as e:
+    #         return JsonResponse({"success": False, "error": str(e)})

@@ -9,7 +9,6 @@
 {% block content %}
     <div>
         <form method="post" enctype="multipart/form-data">
-
             <div>
                 {% csrf_token %}
                 {% crispy form %}
@@ -33,6 +32,12 @@
 
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
+                    // Function to get the CSRF token
+                    function getCSRFToken() {
+                        const csrfTokenElement = document.getElementsByName('csrfmiddlewaretoken')[0];
+                        return csrfTokenElement ? csrfTokenElement.value : null;
+                    }
+
                     // Add an event listener for the "Add Note" button
                     document.getElementById('add-note-button').addEventListener('click', function () {
                         const noteContent = document.getElementById('id_content').value.trim();
@@ -45,7 +50,7 @@
                                 method: "POST",
                                 body: formData,
                                 headers: {
-                                    "X-CSRFToken": getCookie("csrftoken"),
+                                    "X-CSRFToken": getCSRFToken(),
                                     "X-Note-Action": "create",
                                 }
                             })
@@ -55,9 +60,9 @@
                                     // Construct the new note element and add it to the list
                                     const noteElement = document.createElement('li');
                                     noteElement.innerHTML = `
-                                       <div class="note-content">${noteContent}</div>
-                                       <div class="note-timestamp">${data.timestamp}</div>
-                                       <button class="note-delete" data-note-id="${data.note_id}" data-delete-url="{% url 'order_tracking:note_delete' 0 %}">X</button>
+                                        <div class="note-content">${noteContent}</div>
+                                        <div class="note-timestamp">${data.timestamp}</div>
+                                        <button class="note-delete" data-note-id="${data.note_id}">X</button>
                                     `;
 
                                     const noteList = document.querySelector('.order-note-list');
@@ -75,27 +80,24 @@
                         }
                     });
 
-                    // Add an event listener for the "X" buttons
-                    document.querySelectorAll('.note-delete').forEach(function (button) {
-                        button.addEventListener('click', function () {
-                            const noteId = button.getAttribute('data-note-id');
-                            const deleteUrl = button.getAttribute('data-delete-url');
+                    // Add an event listener for the "X" buttons using event delegation
+                    document.addEventListener('click', function (event) {
+                        if (event.target.classList.contains('note-delete')) {
+                            event.preventDefault(); // Prevent the default form submission behavior
 
-                            const formData = new FormData();
-                            formData.append('note_id', noteId);
+                            const noteId = event.target.getAttribute('data-note-id');
 
-                            fetch(deleteUrl, {
+                            fetch('{% url "order_tracking:note_delete" 0 %}'.replace('0', noteId), {
                                 method: "POST",
-                                body: formData,
                                 headers: {
-                                    "X-CSRFToken": getCookie("csrftoken")
+                                    "X-CSRFToken": getCSRFToken()
                                 }
                             })
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
                                     // Remove the deleted note element from the list
-                                    button.closest('li').remove();
+                                    event.target.closest('li').remove();
                                 } else {
                                     console.error("Error deleting note:", data.error);
                                 }
@@ -103,25 +105,9 @@
                             .catch(error => {
                                 console.error("Error deleting note:", error);
                             });
-                        });
+                        }
                     });
                 });
-
-                // Function to get the CSRF token
-                function getCookie(name) {
-                    let cookieValue = null;
-                    if (document.cookie && document.cookie !== "") {
-                        const cookies = document.cookie.split(";");
-                        for (let i = 0; i < cookies.length; i++) {
-                            const cookie = cookies[i].trim();
-                            if (cookie.substring(0, name.length + 1) === name + "=") {
-                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                break;
-                            }
-                        }
-                    }
-                    return cookieValue;
-                }
             </script>
 
             <style>
