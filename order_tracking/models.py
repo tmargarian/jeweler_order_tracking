@@ -117,13 +117,8 @@ class Note(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="notes")
     content = models.TextField(null=True, blank=True)
     timestamp = models.DateTimeField(default=timezone.now)
-    deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return str('Note by' + ' ' + self.user.email + ' for Order #' + str(self.order.id))
-
-    def delete(self, using=None, keep_parents=False):
-        self.deleted_flag = True
-        self.save()

@@ -21,8 +21,8 @@
                     <ul class="order-note-list">
                         {% for note in notes %}
                             <li>
-                                <div class="note-content">{{ note.content }}</div>
-                                <div class="note-timestamp">{{ note.timestamp }}</div>
+                                <div class="content">{{ note.content }}</div>
+                                <div class="timestamp">{{ note.timestamp }}</div>
                                 <button class="note_delete" data-note-id="{{ note.id }}" data-delete-url="{% url 'order_tracking:note_delete' note.id %}">X</button>
                             </li>
                         {% endfor %}
@@ -31,84 +31,122 @@
             </div>
 
             <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    // Function to get the CSRF token
-                    function getCSRFToken() {
-                        const csrfTokenElement = document.getElementsByName('csrfmiddlewaretoken')[0];
-                        return csrfTokenElement ? csrfTokenElement.value : null;
+                document.getElementById('add-note-button').addEventListener('click', function () {
+                    const content = document.getElementById('id_content').value;
+
+                    if (content.trim() !== '') {
+                        // Create a new FormData object
+                        const formData = new FormData();
+                        formData.append('content', content); // Append the note content to the form data
+
+                        // Send an AJAX request to add the note
+                        fetch('{% url "order_tracking:note_update" pk=object.pk %}', {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                "X-CSRFToken": getCookie("csrftoken"),
+                                "X-Note-Action": "create",
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Construct the new note element and add it to the list
+                                const noteElement = document.createElement('li');
+                                noteElement.innerHTML = `
+                                    <div class="content">${content}</div>
+                                    <div class="timestamp">${data.timestamp}</div>
+                                    <button class="note-delete" data-note-id="${data.note_id}" data-delete-url="{% url 'order_tracking:note_delete' 0 %}">X</button>
+                                `;
+                                const noteList = document.querySelector('.order-note-list');
+                                noteList.appendChild(noteElement);
+
+                                // Clear the note content input field
+                                document.getElementById('id_content').value = '';
+
+                                // Reload the page to reflect the note addition
+                                location.reload();
+                            } else {
+                                console.error("Error adding note:", data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error adding note:", error);
+                        });
                     }
+                });
 
-                    // Add an event listener for the "Add Note" button
-                    document.getElementById('add-note-button').addEventListener('click', function () {
-                        const noteContent = document.getElementById('id_content').value.trim();
 
-                        if (noteContent !== '') {
-                            const formData = new FormData();
-                            formData.append('content', noteContent);
 
-                            fetch('{% url "order_tracking:note_update" pk=object.pk %}', {
-                                method: "POST",
-                                body: formData,
-                                headers: {
-                                    "X-CSRFToken": getCSRFToken(),
-                                    "X-Note-Action": "create",
-                                }
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // Construct the new note element and add it to the list
-                                    const noteElement = document.createElement('li');
-                                    noteElement.innerHTML = `
-                                        <div class="note-content">${noteContent}</div>
-                                        <div class="note-timestamp">${data.timestamp}</div>
-                                        <button class="note-delete" data-note-id="${data.note_id}">X</button>
-                                    `;
 
-                                    const noteList = document.querySelector('.order-note-list');
-                                    noteList.appendChild(noteElement);
+                document.addEventListener('DOMContentLoaded', function () {
+                    // Add an event listener for the "X" buttons
+                    document.querySelectorAll('.note_delete').forEach(function (button) {
+                        button.addEventListener('click', function (event) { // Add 'event' as a parameter
+                            event.preventDefault(); // Prevent the default form submission
 
-                                    // Clear the note content input field
-                                    document.getElementById('id_content').value = '';
-                                } else {
-                                    console.error("Error adding note:", data.error);
-                                }
-                            })
-                            .catch(error => {
-                                console.error("Error adding note:", error);
-                            });
-                        }
-                    });
+                                const noteId = button.getAttribute('data-note-id');
+                                const deleteUrl = button.getAttribute('data-delete-url');
 
-                    // Add an event listener for the "X" buttons using event delegation
-                    document.addEventListener('click', function (event) {
-                        if (event.target.classList.contains('note-delete')) {
-                            event.preventDefault(); // Prevent the default form submission behavior
+                                // Create a new FormData object
+                                const formData = new FormData();
+                                formData.append('note_id', noteId); // Append the note_id to the form data
 
-                            const noteId = event.target.getAttribute('data-note-id');
+                                // Debugging: Log the URL and noteId to the console
+                                console.log('Delete URL:', deleteUrl);
+                                console.log('Note ID:', noteId);
 
-                            fetch('{% url "order_tracking:note_delete" 0 %}'.replace('0', noteId), {
-                                method: "POST",
-                                headers: {
-                                    "X-CSRFToken": getCSRFToken()
-                                }
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // Remove the deleted note element from the list
-                                    event.target.closest('li').remove();
-                                } else {
-                                    console.error("Error deleting note:", data.error);
-                                }
-                            })
-                            .catch(error => {
-                                console.error("Error deleting note:", error);
-                            });
-                        }
+                                // Send an AJAX request to delete the note with the note_id
+                                fetch(deleteUrl, {
+                                    method: "POST",
+                                    body: formData, // Send the note_id in the request body
+                                    headers: {
+                                        "X-CSRFToken": getCookie("csrftoken")
+                                    }
+                                })
+                                .then(response => {
+                                    if (response.ok) {
+                                        return response.json();
+                                    } else {
+                                        throw new Error("Network response was not ok.");
+                                    }
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        // Remove the deleted note element from the DOM
+                                        const noteElement = button.closest('li');
+                                        noteElement.remove();
+                                    } else {
+                                        console.error("Error deleting note:", data.error);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error("Error deleting note:", error);
+                                });
+                        });
                     });
                 });
+
+
+
+                // Function to get the CSRF token
+                function getCookie(name) {
+                    let cookieValue = null;
+                    if (document.cookie && document.cookie !== "") {
+                        const cookies = document.cookie.split(";");
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) === name + "=") {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
             </script>
+
 
             <style>
                 .order-notes {

@@ -1,9 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import reverse, redirect
+from django.shortcuts import get_object_or_404
 from django.views.generic.edit import FormView
 from django.views import generic
-from django.http import QueryDict, JsonResponse
-from django.views import View
+from django.http import JsonResponse
 
 from .forms import OrderCreateForm, OrderUpdateForm
 from .models import Note, Order, Client
@@ -88,8 +88,8 @@ class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Filter notes associated with the order, excluding deleted notes
-        context["notes"] = Note.objects.filter(order=self.object, deleted_flag=False)
+        # Filter notes associated with the order
+        context["notes"] = Note.objects.filter(order=self.object)
         return context
 
     def get_form_kwargs(self):
@@ -98,24 +98,8 @@ class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
         return kwargs
 
     def form_valid(self, form):
-        user = self.request.user
         order = form.save(commit=False)
-
         order.save()
-
-        # Check for a new note in the request POST data
-        content = self.request.POST.get("content")
-        note_action = self.request.META.get("HTTP_X_NOTE_ACTION")
-
-        if content and note_action == "create":
-            # Create a new note and associate it with the current order
-            note = Note.objects.create(
-                user=user,
-                order=order,
-                content=content
-            )
-            note.save()
-
         return super().form_valid(form)
 
 
@@ -137,17 +121,24 @@ class OrderDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
 
 
 class NoteUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
+    model = Note
+    form = OrderUpdateForm()
+    form_class = OrderUpdateForm
+
     def post(self, request, pk):
         content = self.request.POST.get("content")
-        if content:
+        note_action = self.request.META.get("HTTP_X_NOTE_ACTION")
+        if content and note_action == "create":
             # Create a new note and associate it with the order (pk)
             note = Note.objects.create(
-                order_id=pk,
+                user=request.user,
+                order=Order.objects.get(pk=pk),
                 content=content,
-                user=self.request.user,
             )
+            note.save()
+
             return JsonResponse(
-                {"success": True, "note_id": note.id, "timestamp": note.timestamp}
+                {"success": True, "note_id": note.id, "content": note.content, "timestamp": note.timestamp}
             )
         else:
             return JsonResponse({"success": False, "error": "Invalid note content."})
@@ -155,13 +146,38 @@ class NoteUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic
 
 class NoteDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.DeleteView):
     def post(self, request, *args, **kwargs):
-        note = Note.objects.get(pk=self.kwargs["pk"])
-        if note:
-            note.deleted_flag = True
-            note.save()
-            return JsonResponse({"success": True})
-        else:
-            return JsonResponse({"success": False, "error": "Invalid note ID."})
+        try:
+            # Use get_object_or_404 to get the Note object or return a 404 response if not found
+            note = get_object_or_404(Note, pk=int(self.kwargs.get("pk")))
+
+            # Delete the note
+            note.delete()
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+
+
+
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     queryset = Note.objects.filter(user=user)
+    #     return queryset
+    #
+    # def post(self, request, *args, **kwargs):
+    #     self.object = self.get_object()
+    #     form = self.get_form()
+    #     if form.is_valid():
+    #         return self.form_valid(form)
+    #     else:
+    #         return JsonResponse({"success": False, "error": "Invalid form data"})
+    #
+    # def form_valid(self, form):
+    #     print('Deleting note on server')
+    #     self.object.delete()
+    #     return JsonResponse({"success": True})
+
 
     # def post(self, request, *args, **kwargs):
     #     try:
