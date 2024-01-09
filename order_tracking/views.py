@@ -121,10 +121,6 @@ class OrderDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
 
 
 class NoteUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
-    model = Note
-    form = OrderUpdateForm()
-    form_class = OrderUpdateForm
-
     def post(self, request, pk):
         content = self.request.POST.get("content")
         note_action = self.request.META.get("HTTP_X_NOTE_ACTION")
@@ -156,44 +152,3 @@ class NoteDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-
-
-
-
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     queryset = Note.objects.filter(user=user)
-    #     return queryset
-    #
-    # def post(self, request, *args, **kwargs):
-    #     self.object = self.get_object()
-    #     form = self.get_form()
-    #     if form.is_valid():
-    #         return self.form_valid(form)
-    #     else:
-    #         return JsonResponse({"success": False, "error": "Invalid form data"})
-    #
-    # def form_valid(self, form):
-    #     print('Deleting note on server')
-    #     self.object.delete()
-    #     return JsonResponse({"success": True})
-
-
-    # def post(self, request, *args, **kwargs):
-    #     try:
-    #         note_id = self.request.POST.get("note_id")
-    #         note = Note.objects.get(pk=note_id)
-    #         if note_id is not None:
-    #             int(note_id)
-    #
-    #             # Soft delete the note by setting the `deleted_flag` to True
-    #             note.deleted_flag = True
-    #             note.save()
-    #
-    #             return JsonResponse({"success": True})
-    #         else:
-    #             return JsonResponse(
-    #                 {"success": False, "error": "Note ID is missing or not valid"}
-    #             )
-    #     except Exception as e:
-    #         return JsonResponse({"success": False, "error": str(e)})

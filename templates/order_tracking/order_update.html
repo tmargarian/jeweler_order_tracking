@@ -76,9 +76,6 @@
                     }
                 });
 
-
-
-
                 document.addEventListener('DOMContentLoaded', function () {
                     // Add an event listener for the "X" buttons
                     document.querySelectorAll('.note_delete').forEach(function (button) {
@@ -127,8 +124,6 @@
                     });
                 });
 
-
-
                 // Function to get the CSRF token
                 function getCookie(name) {
                     let cookieValue = null;
@@ -146,7 +141,6 @@
                     return cookieValue;
                 }
             </script>
-
 
             <style>
                 .order-notes {
@@ -181,8 +175,6 @@
                      text-align: right;
                 }
 
-
-
                 .custom-add-note-button {
                     background-color: #007bff; /* Change the button's background color */
                     color: #fff; /* Change the text color to white */
@@ -195,8 +187,6 @@
                 .custom-add-note-button:hover {
                     background-color: #0056b3; /* Change the background color on hover */
                 }
-
-
 
                 .note-delete {
                     color: red; /* Make the "X" text red */
@@ -211,6 +201,7 @@
                     background-color: lightcoral; /* Change the background color on hover */
                 }
             </style>
+
         </form>
     </div>
 {% endblock content %}
