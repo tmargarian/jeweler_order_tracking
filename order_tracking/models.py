@@ -117,6 +117,7 @@ class Note(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="notes")
     content = models.TextField(null=True, blank=True)
     timestamp = models.DateTimeField(default=timezone.now)
+    deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

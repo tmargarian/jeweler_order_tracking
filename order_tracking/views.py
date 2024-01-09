@@ -1,9 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import reverse, redirect
+from django.shortcuts import reverse, redirect, render
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.edit import FormView
 from django.views import generic
 from django.http import JsonResponse
+from django.views import View
 
 from .forms import OrderCreateForm, OrderUpdateForm
 from .models import Note, Order, Client
@@ -104,20 +106,14 @@ class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
 
 
 class OrderDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.DeleteView):
+    model = Order
     template_name = "order_tracking/order_delete.html"
-    context_object_name = "order_delete"
+    success_url = "order_tracking:order_list"
 
-    def get_success_url(self):
-        return reverse("order_tracking:order_list")
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_owner:
-            queryset = Order.objects.filter(company=user.company)
-            queryset = queryset.filter(client__company=user.company)
-        else:
-            return KeyError("User does not have permission to delete orders")
-        return queryset
+    def delete(self, request, *args, **kwargs):
+        Note.objects.filter(order=self.get_object()).update(deleted_flag=True)
+        self.get_object().delete()
+        return super().delete(request, *args, **kwargs)
 
 
 class NoteUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
