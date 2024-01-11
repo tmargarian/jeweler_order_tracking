@@ -173,16 +173,17 @@ class ClientListView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Client.objects.filter(
-            company=user.company,
-            deleted_flag=False
-        ).annotate(
+        queryset = Client.objects \
+            .filter(company=user.company) \
+            .filter(deleted_flag=False)
+        queryset = queryset.annotate(
             total_spent_column=Sum(
                 Case(
-                    When(orders__order_status='Completed', orders__deleted_flag=False),
-                    then=ExpressionWrapper(F('orders__quoted_price'), output_field=DecimalField()),
-                    default=0.00,
-                    output_field=DecimalField()
+                    When(orders__order_status__in=['Completed'],
+                         orders__deleted_flag=False,
+                         then=F('orders__quoted_price')),
+                         default=0.00,
+                         output_field=DecimalField()
                 )
             )
         )
