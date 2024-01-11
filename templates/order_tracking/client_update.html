@@ -1,0 +1,17 @@
+{% extends "base/_base_in_product.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Update Client
+{% endblock title %}
+
+{% block content %}
+    <h1>Update Client</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% crispy form %}
+        <button type="submit" class="btn btn-success">Update</button>
+    </form>
+{% endblock content %}
+```
