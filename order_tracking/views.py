@@ -1,11 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import reverse, redirect, render
-from django.http import HttpResponseRedirect
+from django.shortcuts import reverse, redirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.edit import FormView
 from django.views import generic
 from django.http import JsonResponse
-from django.views import View
+from django.urls import reverse_lazy
 
 from .forms import OrderCreateForm, OrderUpdateForm
 from .models import Note, Order, Client
@@ -108,12 +107,22 @@ class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
 class OrderDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.DeleteView):
     model = Order
     template_name = "order_tracking/order_delete.html"
-    success_url = "order_tracking:order_list"
+    success_url = reverse_lazy("order_tracking:order_list")
 
     def delete(self, request, *args, **kwargs):
-        Note.objects.filter(order=self.get_object()).update(deleted_flag=True)
-        self.get_object().delete()
-        return super().delete(request, *args, **kwargs)
+        try:
+            order = self.get_object()
+
+            # Soft delete associated notes
+            Note.objects.filter(order=order).update(deleted_flag=True)
+
+            # Soft delete the order
+            order.deleted_flag = True
+            order.save()
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
 
 
 class NoteUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
