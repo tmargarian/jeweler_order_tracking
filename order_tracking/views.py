@@ -1,19 +1,17 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import reverse, redirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import reverse, redirect, get_object_or_404
+from django.db.models import Sum, Case, When, DecimalField, F, ExpressionWrapper
 from django.views.generic.edit import FormView
-from django.views import generic
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+from django.views import generic
 
-from .forms import OrderCreateForm, OrderUpdateForm
-from .models import Note, Order, Client
 from .mixins import ProfileCompletionRequiredMixin
+from .forms import OrderCreateForm, OrderUpdateForm, ClientUpdateForm
+from .models import Note, Order, Client
 
 
-class OrderListView(
-    LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.ListView
-):
+class OrderListView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.ListView):
     template_name = "order_tracking/order_list.html"
     context_object_name = "order_list"
 
@@ -30,8 +28,18 @@ class OrderCreateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormVi
     template_name = "order_tracking/order_create.html"
     context_object_name = "order_create"
     form_class = OrderCreateForm
-    form = OrderCreateForm()
     success_url = "order_tracking:order_list"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def get(self, request, *args, **kwargs):
+        # Override get method to modify queryset before displaying the form
+        form = self.get_form()
+        form.fields['client'].queryset = form.get_filtered_clients(self.request.user)
+        return self.render_to_response(self.get_context_data(form=form))
 
     def form_valid(self, form):
         client_already_exists = self.request.POST.get('client_already_exists')
@@ -81,7 +89,6 @@ class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
     model = Order
     template_name = "order_tracking/order_update.html"
     form_class = OrderUpdateForm
-    form = OrderUpdateForm()
     context_object_name = "order_update"
 
     def get_success_url(self):
@@ -153,6 +160,73 @@ class NoteDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic
 
             # Delete the note
             note.delete()
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+
+class ClientListView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.ListView):
+    model = Client
+    template_name = "order_tracking/client_list.html"
+    context_object_name = "client_list"
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Client.objects.filter(
+            company=user.company,
+            deleted_flag=False
+        ).annotate(
+            total_spent_column=Sum(
+                Case(
+                    When(orders__order_status='Completed', orders__deleted_flag=False),
+                    then=ExpressionWrapper(F('orders__quoted_price'), output_field=DecimalField()),
+                    default=0.00,
+                    output_field=DecimalField()
+                )
+            )
+        )
+        return queryset
+
+
+class ClientUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
+    model = Client
+    template_name = "order_tracking/client_update.html"
+    form_class = ClientUpdateForm
+    context_object_name = "client_update"
+
+    def get_success_url(self):
+        return reverse("order_tracking:client_list")
+
+    def get_form_kwargs(self):
+        kwargs = super(ClientUpdateView, self).get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        client = form.save(commit=False)
+        client.save()
+        return super().form_valid(form)
+
+
+class ClientDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.DeleteView):
+    model = Client
+    template_name = "order_tracking/client_delete.html"
+    success_url = reverse_lazy("order_tracking:client_list")
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            client = self.get_object()
+
+            # Soft delete associated orders
+            Order.objects.filter(client=client).update(deleted_flag=True)
+
+            # Soft delete associated notes
+            Note.objects.filter(client=client).update(deleted_flag=True)
+
+            # Soft delete the client
+            client.deleted_flag = True
+            client.save()
 
             return JsonResponse({'success': True})
         except Exception as e:

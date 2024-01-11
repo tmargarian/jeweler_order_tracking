@@ -107,7 +107,7 @@ class Client(models.Model):
     def delete(self, using=None, keep_parents=False):
         self.deleted_flag = True
         Order.objects.filter(company=self.company).update(deleted_flag=True)
-        Note.objects.filter(company=self.company).update(deleted_flag=True)
+        Note.objects.filter(user=self.user).update(deleted_flag=True)
         self.save()
 
 

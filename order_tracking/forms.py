@@ -77,17 +77,19 @@ class OrderCreateForm(forms.ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
+        user = kwargs.pop('user', None)
         super(OrderCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
+        self.get_filtered_clients(user)
 
-    def get_queryset(self):
-        user = self.user
-        self.fields['client'].queryset = Client.objects \
-            .filter(company=user.company) \
-            .filter(deleted_flag=False)
-        return self.fields['client'].queryset
+    def get_filtered_clients(self, user):
+        if user and user.is_authenticated:
+            return Client.objects.filter(
+                company=user.company,
+                deleted_flag=False
+            )
+        return Client.objects.none()
 
     def clean(self):
         cleaned_data = super().clean()
@@ -220,5 +222,52 @@ class OrderUpdateForm(forms.ModelForm):
 
         if order_photo and order_photo.size > (6 * 1024 * 1024):  # 6 MB
             self.add_error("order_photo", "File size should not exceed 6 MB.")
+
+        return cleaned_data
+
+
+class ClientUpdateForm(forms.ModelForm):
+    first_name = forms.CharField(
+        label='Client First Name',
+        max_length=50, required=False, initial=None, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    last_name = forms.CharField(
+        label='Client Last Name',
+        max_length=50, required=False, initial=None, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    phone_number = forms.CharField(
+        label='Client Phone Number',
+        max_length=20, required=False, initial=None, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(
+        label='Client Email Address',
+        max_length=254, required=False, initial=None, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Client
+        fields = (
+            "first_name",
+            "last_name",
+            "phone_number",
+            "email",
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(ClientUpdateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        first_name = cleaned_data.get("first_name")
+        last_name = cleaned_data.get("last_name")
+        phone_number = cleaned_data.get("phone_number")
+
+        if not first_name:
+            self.add_error('first_name', "This field is required.")
+
+        if not last_name:
+            self.add_error('last_name', "This field is required.")
+
+        if not phone_number:
+            self.add_error('phone_number', "This field is required.")
 
         return cleaned_data

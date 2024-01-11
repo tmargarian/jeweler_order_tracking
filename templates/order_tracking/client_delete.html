@@ -1,0 +1,17 @@
+{% extends "base/_base_in_product.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Delete Client
+{% endblock title %}
+
+{% block content %}
+    <h2>Are you sure you want to delete this client?</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Yes">
+        <a href="{% url 'order_tracking:client_list' %}">No</a>
+    </form>
+{% endblock content %}
