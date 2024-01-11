@@ -2,7 +2,8 @@
   display: none;
 }
 
-#div_id_login {
+#div_id_login,
+#div_id_email {
     margin-bottom: 0!important;
 }
 
