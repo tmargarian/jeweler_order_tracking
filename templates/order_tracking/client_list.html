@@ -22,7 +22,7 @@
                     <td>{{ client_list.first_name }} {{client_list.last_name}} </td>
                     <td>{{ client_list.phone_number }} </td>
                     <td>{{ client_list.email }} </td>
-                    <td>{{ client_list.total_spent }} </td>
+                    <td>{{ client_list.total_spent_column | default:0 }} </td>
                     <td>
                         <a href="{% url 'order_tracking:client_update' client_list.pk %}">Edit</a> |
                         {% if user.is_owner or user.is_employee %}
