@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from localflavor.us.forms import USZipCodeField
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.validators import validate_international_phonenumber
-from allauth.account.forms import LoginForm
+from allauth.account.forms import LoginForm, SignupForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import *
 from crispy_bootstrap5.bootstrap5 import FloatingField
@@ -23,36 +23,61 @@ class CustomLoginForm(LoginForm):
         self.helper.layout = Layout(
             Fieldset(
                 "",
-                HTML("""<h1 class="h3 mb-3 fw-normal">Login</h1>"""),
+                HTML(
+                    """<h1 class="h1 mb-3 fw-normal">
+                        Login
+                        </h1>"""
+                ),
                 FloatingField("login"),
                 FloatingField("password"),
                 "remember",
             ),
-            Submit("submit", "Sign In", css_class="w-100"),
+            Submit("submit", "Log In", css_class="w-100"),
+        )
+
+
+class CustomSignupForm(SignupForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.fields["email"].label = "E-Mail Address"
+        self.fields["password1"].label = "Password"
+        self.fields["password1"].help_text = None
+        self.helper.layout = Layout(
+            Fieldset(
+                "",
+                HTML(
+                    """<h1 class="h1 mb-3 fw-normal">
+                        Sign Up
+                    </h1>"""
+                ),
+                FloatingField("email"),
+                FloatingField("password1"),
+            ),
+            Submit("submit", "Sign Up", css_class="w-100"),
         )
 
 
 class UserProfileForm(forms.ModelForm):
-    phone_number = PhoneNumberField(region='US', required=False)
+    phone_number = PhoneNumberField(region="US", required=False)
 
     class Meta:
         model = UserProfile
         fields = ("first_name", "last_name", "phone_number")
 
     def clean_first_name(self):
-        first_name = self.cleaned_data['first_name']
+        first_name = self.cleaned_data["first_name"]
         if not first_name:
-            raise ValidationError("Please Fill out the First Name!")
+            raise ValidationError("Please fill out the First Name!")
 
         return first_name
 
     def clean_last_name(self):
-        last_name = self.cleaned_data['last_name']
+        last_name = self.cleaned_data["last_name"]
         if not last_name:
-            raise ValidationError("Please Fill out the Last Name!")
+            raise ValidationError("Please fill out the Last Name!")
 
         return last_name
-
 
 
 class CompanyForm(forms.ModelForm):

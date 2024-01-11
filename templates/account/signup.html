@@ -1,15 +1,20 @@
 {% extends "base/_base_landing_page.html" %}
+{% load static %}
 {% load crispy_forms_filters %}
-{% load crispy_forms_tags %}
 
 {% block title %}
 	Sign Up
 {% endblock title %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock stylesheets %}
+
 {% block content %}
-    <h2>Sign Up</h2>
-    <form action="" method="post">{% csrf_token %}
-        {{ form|crispy }}
-        <button class="btn btn-primary" type="submit">Sign Up</button>
-    </form>
+    <main class="row flex-grow-1 vw-100">
+        <div class="form-signin m-auto">
+            {% csrf_token %}
+            {% crispy form %}
+        </div>
+    </main>
 {% endblock content %}
