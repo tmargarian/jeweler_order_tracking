@@ -59,6 +59,13 @@ class CustomSignupForm(SignupForm):
 
 
 class UserProfileForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.fields["first_name"].label = "First Name"
+        self.fields["last_name"].label = "Last Name"
+        self.fields["phone_number"].label = "Phone Number"
+
     phone_number = PhoneNumberField(region="US", required=False)
 
     class Meta:
@@ -81,6 +88,7 @@ class UserProfileForm(forms.ModelForm):
 
 
 class CompanyForm(forms.ModelForm):
+
     # Overriding the default error message (it features 5 AND 9 digit zips like 94089-1690)
     zip_code = USZipCodeField(
         error_messages={"invalid": "Enter a zip code in the format XXXXX."},

@@ -10,31 +10,50 @@
     {{ wizard.form.media }}
 {% endblock %}
 
-{% block content %}
-    <form action="" method="post">{% csrf_token %}
-        {{ wizard.management_form }}
-        {% for field in wizard.form %}
-        	{{ field | as_crispy_field }}
-        {% endfor %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock stylesheets %}
 
-        {% if wizard.steps.prev %}
-            <button name="wizard_goto_step"
-                    type="submit"
-                    value="{{ wizard.steps.prev }}"
-                    class="btn btn-primary">
-                prev step
-            </button>
-        {% endif %}
-        {% if wizard.steps.next %}
-            <button name="wizard_goto_step"
-                    type="submit"
-                    value="{{ wizard.steps.next }}"
-                    class="btn btn-primary">
-                next step
-            </button>
-        {% endif %}
-        <input class="btn btn-primary" type="submit" value="submit" />
-    </form>
+{% block content %}
+    <main class="row flex-grow-1 vw-100">
+        <div class="form-signin m-auto">
+            <form action="" method="post" class="form-profile">{% csrf_token %}
+                <h1 class="h3 mb-3 fw-bolder"> Step 2. Company Info</h1>
+                {{ wizard.management_form }}
+                {% for field in wizard.form %}
+                    {{ field | as_crispy_field }}
+                {% endfor %}
+
+                <div class="row">
+                    {% if wizard.steps.prev %}
+                        <div class="col">
+                            <button name="wizard_goto_step"
+                                    type="submit"
+                                    value="{{ wizard.steps.prev }}"
+                                    class="btn btn-primary me-md-2">
+                                Previous Step
+                            </button>
+                        </div>
+                    {% endif %}
+                    {% if wizard.steps.next %}
+                        <div class="col">
+                            <button name="wizard_goto_step"
+                                    type="submit"
+                                    value="{{ wizard.steps.next }}"
+                                    class="btn btn-primary">
+                                Next Step
+                            </button>
+                        </div>
+                    {% endif %}
+                    {% if wizard.steps.current == wizard.steps.last %}
+                        <div class="col">
+                            <input class="btn btn-primary" type="submit" value="Done" />
+                        </div>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </main>
 {% endblock content %}
 
 {% block script %}

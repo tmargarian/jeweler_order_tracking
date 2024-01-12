@@ -2,16 +2,19 @@
   display: none;
 }
 
-#div_id_login,
-#div_id_email {
-    margin-bottom: 0!important;
-}
-
-.form-signin {
-  max-width: 330px;
+.form-signin,
+.form-profile
+{
+  max-width: 350px;
   padding: 1rem;
 }
 
+.btn-primary {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Floating forms (login & signup) */
 .form-signin .form-floating:focus-within {
   z-index: 2;
 }
@@ -26,4 +29,9 @@
   margin-bottom: 10px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+}
+
+#div_id_login,
+#div_id_email {
+    margin-bottom: 0!important;
 }

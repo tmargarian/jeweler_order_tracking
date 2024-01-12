@@ -172,11 +172,11 @@ LOGOUT_REDIRECT_URL = "account_login"
 
 # Use email as default authentication/signup method
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
-ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_EMAIL_REQUIRED = True  # Require email
+ACCOUNT_AUTHENTICATION_METHOD = "email"  # Email instead of username
+ACCOUNT_UNIQUE_EMAIL = True  # Emails to be unique across users
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False  # Remove password confirmation on signup
+ACCOUNT_LOGOUT_ON_GET = True  # Skip logout confirmation page
 
 # Custom Login form (remove labels)
 ACCOUNT_FORMS = {
