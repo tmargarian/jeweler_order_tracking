@@ -1,30 +1,35 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import reverse, redirect, get_object_or_404
-from django.db.models import Sum, Case, When, DecimalField, F, ExpressionWrapper
+from django.db.models import Sum, Case, When, DecimalField, F
 from django.views.generic.edit import FormView
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views import generic
 
-from .mixins import ProfileCompletionRequiredMixin
+from .mixins import CompleteProfileAndActiveSubscriptionMixin
 from .forms import OrderCreateForm, OrderUpdateForm, ClientUpdateForm
 from .models import Note, Order, Client
 
 
-class OrderListView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.ListView):
+class OrderListView(
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.ListView,
+):
     template_name = "order_tracking/order_list.html"
     context_object_name = "order_list"
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Order.objects \
-            .filter(company=user.company) \
-            .filter(deleted_flag=False) \
+        queryset = (
+            Order.objects.filter(company=user.company)
+            .filter(deleted_flag=False)
             .filter(client__company=user.company)
+        )
         return queryset
 
 
-class OrderCreateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormView):
+class OrderCreateView(
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, FormView
+):
     template_name = "order_tracking/order_create.html"
     context_object_name = "order_create"
     form_class = OrderCreateForm
@@ -38,11 +43,11 @@ class OrderCreateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormVi
     def get(self, request, *args, **kwargs):
         # Override get method to modify queryset before displaying the form
         form = self.get_form()
-        form.fields['client'].queryset = form.get_filtered_clients(self.request.user)
+        form.fields["client"].queryset = form.get_filtered_clients(self.request.user)
         return self.render_to_response(self.get_context_data(form=form))
 
     def form_valid(self, form):
-        client_already_exists = self.request.POST.get('client_already_exists')
+        client_already_exists = self.request.POST.get("client_already_exists")
 
         if form.is_valid():
             user = self.request.user
@@ -63,7 +68,7 @@ class OrderCreateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormVi
                     first_name=form.cleaned_data["first_name"],
                     last_name=form.cleaned_data["last_name"],
                     phone_number=form.cleaned_data["phone_number"],
-                    email=form.cleaned_data["email"]
+                    email=form.cleaned_data["email"],
                 )
                 client.save()
 
@@ -72,11 +77,7 @@ class OrderCreateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormVi
 
             content = form.cleaned_data["content"]
             if content:
-                note = Note.objects.create(
-                    user=user,
-                    order=order,
-                    content=content
-                )
+                note = Note.objects.create(user=user, order=order, content=content)
                 note.save()
 
             return redirect(self.get_success_url())
@@ -85,7 +86,9 @@ class OrderCreateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, FormVi
             return self.form_invalid(form)
 
 
-class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
+class OrderUpdateView(
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.UpdateView
+):
     model = Order
     template_name = "order_tracking/order_update.html"
     form_class = OrderUpdateForm
@@ -111,7 +114,9 @@ class OrderUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
         return super().form_valid(form)
 
 
-class OrderDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.DeleteView):
+class OrderDeleteView(
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.DeleteView
+):
     model = Order
     template_name = "order_tracking/order_delete.html"
     success_url = reverse_lazy("order_tracking:order_list")
@@ -127,12 +132,14 @@ class OrderDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generi
             order.deleted_flag = True
             order.save()
 
-            return JsonResponse({'success': True})
+            return JsonResponse({"success": True})
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+            return JsonResponse({"success": False, "error": str(e)})
 
 
-class NoteUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
+class NoteUpdateView(
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.UpdateView
+):
     def post(self, request, pk):
         content = self.request.POST.get("content")
         note_action = self.request.META.get("HTTP_X_NOTE_ACTION")
@@ -146,13 +153,20 @@ class NoteUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic
             note.save()
 
             return JsonResponse(
-                {"success": True, "note_id": note.id, "content": note.content, "timestamp": note.timestamp}
+                {
+                    "success": True,
+                    "note_id": note.id,
+                    "content": note.content,
+                    "timestamp": note.timestamp,
+                }
             )
         else:
             return JsonResponse({"success": False, "error": "Invalid note content."})
 
 
-class NoteDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.DeleteView):
+class NoteDeleteView(
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.DeleteView
+):
     def post(self, request, *args, **kwargs):
         try:
             # Use get_object_or_404 to get the Note object or return a 404 response if not found
@@ -161,36 +175,42 @@ class NoteDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic
             # Delete the note
             note.delete()
 
-            return JsonResponse({'success': True})
+            return JsonResponse({"success": True})
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+            return JsonResponse({"success": False, "error": str(e)})
 
 
-class ClientListView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.ListView):
+class ClientListView(
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.ListView
+):
     model = Client
     template_name = "order_tracking/client_list.html"
     context_object_name = "client_list"
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Client.objects \
-            .filter(company=user.company) \
-            .filter(deleted_flag=False)
+        queryset = Client.objects.filter(company=user.company).filter(
+            deleted_flag=False
+        )
         queryset = queryset.annotate(
             total_spent_column=Sum(
                 Case(
-                    When(orders__order_status__in=['Completed'],
-                         orders__deleted_flag=False,
-                         then=F('orders__quoted_price')),
-                         default=0.00,
-                         output_field=DecimalField()
+                    When(
+                        orders__order_status__in=["Completed"],
+                        orders__deleted_flag=False,
+                        then=F("orders__quoted_price"),
+                    ),
+                    default=0.00,
+                    output_field=DecimalField(),
                 )
             )
         )
         return queryset
 
 
-class ClientUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.UpdateView):
+class ClientUpdateView(
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.UpdateView
+):
     model = Client
     template_name = "order_tracking/client_update.html"
     form_class = ClientUpdateForm
@@ -210,7 +230,9 @@ class ClientUpdateView(LoginRequiredMixin, ProfileCompletionRequiredMixin, gener
         return super().form_valid(form)
 
 
-class ClientDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, generic.DeleteView):
+class ClientDeleteView(
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.DeleteView
+):
     model = Client
     template_name = "order_tracking/client_delete.html"
     success_url = reverse_lazy("order_tracking:client_list")
@@ -229,6 +251,6 @@ class ClientDeleteView(LoginRequiredMixin, ProfileCompletionRequiredMixin, gener
             client.deleted_flag = True
             client.save()
 
-            return JsonResponse({'success': True})
+            return JsonResponse({"success": True})
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+            return JsonResponse({"success": False, "error": str(e)})

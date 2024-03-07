@@ -1,19 +1,21 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 from django.views.generic import TemplateView
-from djstripe.models import Plan
 from django.conf import settings
+from django.shortcuts import redirect, render
 
 from payments.metadata import product_metadata_dict
+from djstripe.models import Plan, Subscription, Customer
+from djstripe.settings import djstripe_settings
+from accounts.models import Company
+
+import stripe
 
 
 class PricingPageView(TemplateView):
     template_name = "payments/pricing_page.html"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["stripe_pricing_table_id"] = settings.STRIPE_PRICING_TABLE_ID
-        # Replace with Live key in prod
-        context["stripe_public_key"] = settings.STRIPE_TEST_PUBLIC_KEY
-
         # Price context enriched with product metadata
         plans = Plan.objects.filter(product__active=True)
         for plan in plans:
@@ -23,6 +25,58 @@ class PricingPageView(TemplateView):
             if plan.id == plan.product.default_price_id:
                 plan.is_default = True
 
+        context = super().get_context_data(**kwargs)
         context["plans"] = plans
 
         return context
+
+
+class PricingPageLoggedInView(TemplateView):
+    template_name = "payments/pricing_page_logged_in.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["stripe_pricing_table_id"] = settings.STRIPE_PRICING_TABLE_ID
+        # Replace with Live key in prod
+        context["stripe_public_key"] = settings.STRIPE_TEST_PUBLIC_KEY
+
+        company = Company.objects.get(owner__user_id=self.request.user.id)
+        context["company_id"] = company.id
+
+        return context
+
+
+class SubscriptionConfirmView(LoginRequiredMixin, TemplateView):
+    template_name = "payments/subscription_confirm.html"
+
+    def get(self, request, *args, **kwargs):
+        stripe.api_key = djstripe_settings.STRIPE_SECRET_KEY
+
+        session_id = request.GET.get("session_id")
+        session = stripe.checkout.Session.retrieve(session_id)
+
+        company_id = int(session.client_reference_id)
+        session_company = Company.objects.get(id=company_id)
+        current_company = Company.objects.get(owner__user_id=request.user.id)
+        print(session_company.id , current_company.id)
+
+        if session_company != current_company:
+            print("There was an error with your subscription. Please contact support.")
+            return redirect("landing")
+
+        # Retrieving the object
+        customer = Customer.objects.get(id=session.customer)
+        plan = Plan.objects.get(subscriptions__customer_id=customer.id)
+        subscription = Subscription.objects.get(customer_id=customer.id)
+
+        # Updating the objecst
+        customer.default_payment_method = subscription.default_payment_method
+        customer.subscriber = session_company
+        session_company.subscription_id = subscription
+        session_company.customer = customer
+
+        # Saving the objects
+        customer.save()
+        session_company.save()
+
+        return render(request, self.template_name)

@@ -20,14 +20,6 @@ services:
     env_file:
       - .env
 
-  stripe:
-    image: stripe/stripe-cli
-    command: listen --forward-to http://web:8000/stripe/webhook/
-    depends_on:
-      - web
-    env_file:
-      - .env
-
 
 volumes:
   postgres_data:

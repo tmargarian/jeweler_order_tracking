@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.db import models
 
+from djstripe.models import Customer
+
 from localflavor.us.models import USZipCodeField, USStateField
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -21,7 +23,6 @@ class CustomUser(AbstractUser):
     last_name = None
     phone_number = None
 
-
 # Secondary data stored in the UserProfile (phone numbers | full name)
 class UserProfile(models.Model):
     user = models.OneToOneField("CustomUser", on_delete=models.CASCADE, related_name="profiles")
@@ -37,6 +38,14 @@ class UserProfile(models.Model):
 
 class Company(models.Model):
     owner = models.OneToOneField("Owner", on_delete=models.SET_NULL, related_name="owners", null=True)
+    subscription = models.ForeignKey(
+        'djstripe.Subscription', null=True, blank=True, on_delete=models.SET_NULL,
+        help_text="The team's Stripe Subscription object, if it exists"
+    )
+    customer = models.ForeignKey(
+        'djstripe.Customer', null=True, blank=True, on_delete=models.SET_NULL,
+        help_text="The user's Stripe Customer object, if it exists"
+    )
     company_name = models.CharField(max_length=100, blank=True, null=True)
     address_lines = models.CharField(max_length=200, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
@@ -44,6 +53,10 @@ class Company(models.Model):
     zip_code = USZipCodeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def email(self):
+        return self.owner.user.email  # For DJSTRIPE_SUBSCRIBER_MODEL to work
 
     def __str__(self):
         return self.company_name if self.company_name else str(self.id)

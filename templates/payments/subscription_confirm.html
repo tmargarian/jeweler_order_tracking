@@ -1,0 +1,24 @@
+{% extends "base/_base_landing_page.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{% static 'css/pricing.css' %}">
+{% endblock stylesheets %}
+
+{% block content %}
+    <main class="row flex-grow-1 vw-100">
+        <div class="container py-3 text-center">
+            {% comment %} Pricing Text {% endcomment %}
+            <div class="pricing-header p-3 mx-auto text-center">
+                <h1 class="display-4 fw-normal text-body-emphasis">Confirmation</h1>
+                <p class="mb-1 fs-5 text-body-secondary">
+                    Your Subscription is Confirmed!
+                </p>
+                <a class="w-100 btn btn-lg btn-primary"
+                   href="{% url 'order_tracking:order_list' %}">
+                    Proceed to the App
+                </a>
+            </div>
+        </div>
+    </main>
+{% endblock content %}

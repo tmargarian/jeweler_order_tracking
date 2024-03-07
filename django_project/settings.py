@@ -27,8 +27,8 @@ SECRET_KEY = "django-insecure-5e=0d^^o@m6ua(i*yk1nhm+(-@e@ojhkgr**3t^2l5t6n-mxr8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "5d4a-2601-647-4d7f-3290-f1e3-7b80-6c94-ebdc.ngrok-free.app"]
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # Application definition
 
@@ -206,7 +206,7 @@ DJSTRIPE_USE_NATIVE_JSONFIELD = (
     env.bool("DJSTRIPE_USE_NATIVE_JSONFIELD", True)  # We recommend setting to True for new installations
 )
 DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
+DJSTRIPE_SUBSCRIBER_MODEL = "accounts.Company"  # Companies hold the subscription, not users
 
 # Pricing Table ID on Stripe
 STRIPE_PRICING_TABLE_ID = env("STRIPE_PRICING_TABLE_ID")
-

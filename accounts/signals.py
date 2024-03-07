@@ -1,8 +1,9 @@
 # Handling sign up signals to create Owner & UserProfile instances
 # immediately after sign up
 from django.dispatch import receiver
-from allauth.account.signals import user_signed_up
 from django.contrib.auth import get_user_model
+from allauth.account.signals import user_signed_up
+from djstripe import webhooks
 
 from .models import UserProfile, Company, Owner
 
@@ -16,7 +17,6 @@ def create_user_profile(sender, **kwargs):
 @receiver(user_signed_up)
 def create_owner(sender, **kwargs):
     owner = Owner(user_id=kwargs["user"].id)
-
     owner.save()
 
 

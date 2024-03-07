@@ -3,7 +3,6 @@ from django.shortcuts import redirect
 from django.http import JsonResponse
 from formtools.wizard.views import SessionWizardView
 
-
 from .forms import UserProfileForm, CompanyForm
 from .models import UserProfile, Company, ZipToAddressLookup
 
