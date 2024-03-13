@@ -18,16 +18,11 @@
 <body>
 <div class="container text-left m-0 p-0">
     {% include 'components/_sidebar_icons.html' %}
-    <div class="row align-items-start">
-        {% comment %} Sidebar {% endcomment %}
-        <div class="col-auto">
-            {% include 'components/_sidebar.html' %}
-        </div>
-        <div class="col">
-            <main>
-                {% block content %}{% endblock content %}
-            </main>
-        </div>
+    {% include 'components/_sidebar.html' %}
+    <div class="page-content col">
+        <main>
+            {% block content %}{% endblock content %}
+        </main>
     </div>
 </div>
 

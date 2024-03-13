@@ -1,5 +1,13 @@
+:root{
+  --sidebar-width-px: 280px;
+}
+
 html,
 body {
   height: 100%;
   line-height: 1.5;
+}
+
+.page-content {
+  margin-left: var(--sidebar-width-px);
 }
