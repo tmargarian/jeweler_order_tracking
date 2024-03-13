@@ -27,8 +27,7 @@ SECRET_KEY = "django-insecure-5e=0d^^o@m6ua(i*yk1nhm+(-@e@ojhkgr**3t^2l5t6n-mxr8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "5d4a-2601-647-4d7f-3290-f1e3-7b80-6c94-ebdc.ngrok-free.app"]
-
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "abaf-2601-647-4d7f-3290-486f-7016-54bd-22eb.ngrok-free.app"]
 
 # Application definition
 
@@ -202,6 +201,7 @@ STRIPE_LIVE_MODE = env.bool("STRIPE_LIVE_MODE", False)
 
 # Get it from the section in the Stripe dashboard where you added the webhook endpoint
 DJSTRIPE_WEBHOOK_SECRET = env("STRIPE_WHSEC")
+
 DJSTRIPE_USE_NATIVE_JSONFIELD = (
     env.bool("DJSTRIPE_USE_NATIVE_JSONFIELD", True)  # We recommend setting to True for new installations
 )

@@ -8,6 +8,7 @@ from payments.metadata import product_metadata_dict
 from djstripe.models import Plan, Subscription, Customer
 from djstripe.settings import djstripe_settings
 from accounts.models import Company
+from .mixins import CompleteProfileMixin
 
 import stripe
 
@@ -31,8 +32,21 @@ class PricingPageView(TemplateView):
         return context
 
 
-class PricingPageLoggedInView(TemplateView):
+class PricingPageLoggedInView(LoginRequiredMixin, CompleteProfileMixin, TemplateView):
     template_name = "payments/pricing_page_logged_in.html"
+
+    # Show the subscription page only in case the customer is logged in and subscription is dead
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            subscription = Subscription.objects.get(customer__company__owner__user_id=request.user.id)
+        except Subscription.DoesNotExist:
+            return super().dispatch(request, *args, **kwargs)
+
+        if subscription.status not in ["incomplete_expired", "canceled", "unpaid"]:
+            return redirect("https://billing.stripe.com/p/login/test_fZeeYk74mdw2cda144")
+
+        return super().dispatch(request, *args, **kwargs)
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -58,7 +72,7 @@ class SubscriptionConfirmView(LoginRequiredMixin, TemplateView):
         company_id = int(session.client_reference_id)
         session_company = Company.objects.get(id=company_id)
         current_company = Company.objects.get(owner__user_id=request.user.id)
-        print(session_company.id , current_company.id)
+        print(session_company.id, current_company.id)
 
         if session_company != current_company:
             print("There was an error with your subscription. Please contact support.")
@@ -66,10 +80,9 @@ class SubscriptionConfirmView(LoginRequiredMixin, TemplateView):
 
         # Retrieving the object
         customer = Customer.objects.get(id=session.customer)
-        plan = Plan.objects.get(subscriptions__customer_id=customer.id)
         subscription = Subscription.objects.get(customer_id=customer.id)
 
-        # Updating the objecst
+        # Updating the object
         customer.default_payment_method = subscription.default_payment_method
         customer.subscriber = session_company
         session_company.subscription_id = subscription
