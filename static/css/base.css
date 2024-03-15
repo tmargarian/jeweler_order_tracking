@@ -8,6 +8,10 @@ body {
   line-height: 1.5;
 }
 
+main {
+  padding: 1em;
+}
+
 .page-content {
   margin-left: var(--sidebar-width-px);
 }
