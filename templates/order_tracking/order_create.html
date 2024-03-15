@@ -13,37 +13,34 @@
 {% block script %}
     <script>
         // Get the checkbox and the fields to be disabled
-        const select = document.querySelector('#id_client_already_exists');
-        const fieldsToDisableUser = [
+        let clientExistsSelector = document.querySelector('#id_client_already_exists');
+        let clientSelector = document.querySelector('#id_client');
+
+        let fieldsToDisableUser = [
             document.querySelector('#id_first_name'),
             document.querySelector('#id_last_name'),
             document.querySelector('#id_email'),
             document.querySelector('#id_phone_number'),
         ];
-        const fieldsToDisableClient = [
-            document.querySelector('#id_client'),
-        ];
+
 
         // Function to toggle the disabled attribute on fields
         function toggleFieldsDisabled() {
-            const isClientExists = select.value === 'True';
-            const isClientDropdownDisabled = select.value === 'False';
+            let isClientExists = clientExistsSelector.value === 'True';
 
-            fieldsToDisableUser.forEach(field => {
-                field.disabled = isClientExists;
-            });
+            {# Disabling/Enabling Client Fields (Name/Phone/Email) #}
+            fieldsToDisableUser.forEach(field => {field.disabled = isClientExists;});
+            {# Enabling/Disabling the Client Selector #}
+            clientSelector.disabled = !isClientExists;
 
-            fieldsToDisableClient.forEach(field => {
-                if (field.id === 'id_client') {
-                    field.disabled = isClientDropdownDisabled;
-                } else {
-                    field.disabled = isClientExists;
-                }
-            });
+            {# If we set Existing Client? to No -> Set the Client Selector to nothing #}
+            if (!isClientExists) {
+                clientSelector.value = '';
+            }
         }
 
         // Initially set the field states and add an event listener
         toggleFieldsDisabled();
-        select.addEventListener('change', toggleFieldsDisabled);
+        clientExistsSelector.addEventListener('change', toggleFieldsDisabled);
     </script>
 {% endblock script %}
