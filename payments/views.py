@@ -37,6 +37,10 @@ class PricingPageLoggedInView(LoginRequiredMixin, CompleteProfileMixin, Template
 
     # Show the subscription page only in case the customer is logged in and subscription is dead
     def dispatch(self, request, *args, **kwargs):
+        # Logged in check
+        if not request.user.id:
+            return super().dispatch(request, *args, **kwargs)
+
         try:
             subscription = Subscription.objects.get(customer__company__owner__user_id=request.user.id)
         except Subscription.DoesNotExist:

@@ -51,3 +51,5 @@ class CompleteProfileMixin(UserPassesTestMixin):
         # if the subscription is active it must be the incomplete profile
         if self.incomplete_profile:
             return redirect("accounts:profile_completion")
+        else:
+            return super().handle_no_permission()
