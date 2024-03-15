@@ -16,7 +16,11 @@ class CompleteProfileAndActiveSubscriptionMixin(UserPassesTestMixin):
 
     def test_func(self):
         # Checking for user profile completion
-        user_profile = UserProfile.objects.get(user_id=self.request.user.id)
+        try:
+            user_profile = UserProfile.objects.get(user_id=self.request.user.id)
+        except UserProfile.DoesNotExist:
+            self.incomplete_profile = True
+            return False
 
         if (
             not user_profile.first_name
@@ -79,3 +83,5 @@ class CompleteProfileAndActiveSubscriptionMixin(UserPassesTestMixin):
         elif self.subscription_inactive:
             print("b")
             return redirect("pricing_page_logged_in")
+        else:
+            return super().handle_no_permission()

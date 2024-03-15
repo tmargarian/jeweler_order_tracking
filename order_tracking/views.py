@@ -2,18 +2,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import reverse, redirect, get_object_or_404
 from django.db.models import Sum, Case, When, DecimalField, F
 from django.views.generic.edit import FormView
+from django.views.generic import ListView, UpdateView, DeleteView
 from django.http import JsonResponse
 from django.urls import reverse_lazy
-from django.views import generic
 
 from .mixins import CompleteProfileAndActiveSubscriptionMixin
 from .forms import OrderCreateForm, OrderUpdateForm, ClientUpdateForm
 from .models import Note, Order, Client
 
 
-class OrderListView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.ListView,
-):
+class OrderListView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, ListView):
     template_name = "order_tracking/order_list.html"
     context_object_name = "order_list"
 
@@ -27,9 +25,7 @@ class OrderListView(
         return queryset
 
 
-class OrderCreateView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, FormView
-):
+class OrderCreateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, FormView):
     template_name = "order_tracking/order_create.html"
     context_object_name = "order_create"
     form_class = OrderCreateForm
@@ -86,9 +82,7 @@ class OrderCreateView(
             return self.form_invalid(form)
 
 
-class OrderUpdateView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.UpdateView
-):
+class OrderUpdateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView):
     model = Order
     template_name = "order_tracking/order_update.html"
     form_class = OrderUpdateForm
@@ -114,9 +108,7 @@ class OrderUpdateView(
         return super().form_valid(form)
 
 
-class OrderDeleteView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.DeleteView
-):
+class OrderDeleteView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, DeleteView):
     model = Order
     template_name = "order_tracking/order_delete.html"
     success_url = reverse_lazy("order_tracking:order_list")
@@ -137,9 +129,7 @@ class OrderDeleteView(
             return JsonResponse({"success": False, "error": str(e)})
 
 
-class NoteUpdateView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.UpdateView
-):
+class NoteUpdateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView):
     def post(self, request, pk):
         content = self.request.POST.get("content")
         note_action = self.request.META.get("HTTP_X_NOTE_ACTION")
@@ -164,9 +154,7 @@ class NoteUpdateView(
             return JsonResponse({"success": False, "error": "Invalid note content."})
 
 
-class NoteDeleteView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.DeleteView
-):
+class NoteDeleteView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, DeleteView):
     def post(self, request, *args, **kwargs):
         try:
             # Use get_object_or_404 to get the Note object or return a 404 response if not found
@@ -180,9 +168,7 @@ class NoteDeleteView(
             return JsonResponse({"success": False, "error": str(e)})
 
 
-class ClientListView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.ListView
-):
+class ClientListView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, ListView):
     model = Client
     template_name = "order_tracking/client_list.html"
     context_object_name = "client_list"
@@ -208,9 +194,7 @@ class ClientListView(
         return queryset
 
 
-class ClientUpdateView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.UpdateView
-):
+class ClientUpdateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView):
     model = Client
     template_name = "order_tracking/client_update.html"
     form_class = ClientUpdateForm
@@ -230,9 +214,7 @@ class ClientUpdateView(
         return super().form_valid(form)
 
 
-class ClientDeleteView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, generic.DeleteView
-):
+class ClientDeleteView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, DeleteView):
     model = Client
     template_name = "order_tracking/client_delete.html"
     success_url = reverse_lazy("order_tracking:client_list")
