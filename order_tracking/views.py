@@ -41,6 +41,21 @@ class OrderCreateView(
         return kwargs
 
     def get(self, request, *args, **kwargs):
+        # AJAX handling for Client info autocomplete
+        is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
+        if is_ajax:
+            client_id = request.headers.get("clientId")
+            print(f"client_id is {client_id}")
+            print(request.headers)
+            client = Client.objects.get(id=client_id)
+            return JsonResponse({
+                "first_name": client.first_name,
+                "last_name": client.last_name,
+                "phone_number": client.phone_number,
+                "email": client.email
+                })
+
         # Override get method to modify queryset before displaying the form
         form = self.get_form()
         form.fields["client"].queryset = form.get_filtered_clients(self.request.user)
@@ -89,8 +104,6 @@ class OrderCreateView(
 
         else:
             return self.form_invalid(form)
-
-
 
 
 class OrderUpdateView(
