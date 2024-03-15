@@ -3,49 +3,47 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <div>
-        <form action="" method="post" class="bootstrap5" enctype="multipart/form-data">
-            <div>
-                {% csrf_token %}
-                {% crispy form %}
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-
-            <script>
-                // Get the checkbox and the fields to be disabled
-                const select = document.querySelector('#id_client_already_exists');
-                const fieldsToDisableUser = [
-                    document.querySelector('#id_first_name'),
-                    document.querySelector('#id_last_name'),
-                    document.querySelector('#id_email'),
-                    document.querySelector('#id_phone_number'),
-                ];
-                const fieldsToDisableClient = [
-                    document.querySelector('#id_client'),
-                ];
-
-                // Function to toggle the disabled attribute on fields
-                function toggleFieldsDisabled() {
-                    const isClientExists = select.value === 'True';
-                    const isClientDropdownDisabled = select.value === 'False';
-
-                    fieldsToDisableUser.forEach(field => {
-                        field.disabled = isClientExists;
-                    });
-
-                    fieldsToDisableClient.forEach(field => {
-                        if (field.id === 'id_client') {
-                            field.disabled = isClientDropdownDisabled;
-                        } else {
-                            field.disabled = isClientExists;
-                        }
-                    });
-                }
-
-                // Initially set the field states and add an event listener
-                toggleFieldsDisabled();
-                select.addEventListener('change', toggleFieldsDisabled);
-            </script>
-        </form>
-    </div>
+    <form action="" method="post" class="bootstrap5" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% crispy form %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
 {% endblock content %}
+
+{% block script %}
+    <script>
+        // Get the checkbox and the fields to be disabled
+        const select = document.querySelector('#id_client_already_exists');
+        const fieldsToDisableUser = [
+            document.querySelector('#id_first_name'),
+            document.querySelector('#id_last_name'),
+            document.querySelector('#id_email'),
+            document.querySelector('#id_phone_number'),
+        ];
+        const fieldsToDisableClient = [
+            document.querySelector('#id_client'),
+        ];
+
+        // Function to toggle the disabled attribute on fields
+        function toggleFieldsDisabled() {
+            const isClientExists = select.value === 'True';
+            const isClientDropdownDisabled = select.value === 'False';
+
+            fieldsToDisableUser.forEach(field => {
+                field.disabled = isClientExists;
+            });
+
+            fieldsToDisableClient.forEach(field => {
+                if (field.id === 'id_client') {
+                    field.disabled = isClientDropdownDisabled;
+                } else {
+                    field.disabled = isClientExists;
+                }
+            });
+        }
+
+        // Initially set the field states and add an event listener
+        toggleFieldsDisabled();
+        select.addEventListener('change', toggleFieldsDisabled);
+    </script>
+{% endblock script %}
