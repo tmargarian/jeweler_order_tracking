@@ -7,7 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.db import models
 from accounts.models import Company
-
+from djmoney.models.fields import MoneyField
 
 class Order(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -16,9 +16,9 @@ class Order(models.Model):
     client = models.ForeignKey("Client", on_delete=models.CASCADE, related_name="orders", blank=True, null=True)
     order_date = models.DateField()
     order_due_date = models.DateField()
-    estimated_cost = models.DecimalField(decimal_places=2, max_digits=10)
-    quoted_price = models.DecimalField(decimal_places=2, max_digits=10)
-    security_deposit = models.DecimalField(decimal_places=2, max_digits=10)
+    estimated_cost = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
+    quoted_price = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
+    security_deposit = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
     order_type = models.CharField()
     order_status = models.CharField()
     order_photo = models.ImageField(upload_to="order_photos/", blank=True, null=True)

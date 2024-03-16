@@ -27,7 +27,11 @@ SECRET_KEY = "django-insecure-5e=0d^^o@m6ua(i*yk1nhm+(-@e@ojhkgr**3t^2l5t6n-mxr8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "abaf-2601-647-4d7f-3290-486f-7016-54bd-22eb.ngrok-free.app"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "7103-2601-647-4d7f-3290-8d9d-1f38-1f30-5568.ngrok-free.app",
+]
 
 # Application definition
 
@@ -43,6 +47,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "formtools",
     "djstripe",
+    "djmoney",
     "crispy_forms",
     "crispy_bootstrap5",
     "allauth",
@@ -180,7 +185,7 @@ ACCOUNT_LOGOUT_ON_GET = True  # Skip logout confirmation page
 # Custom Login form (remove labels)
 ACCOUNT_FORMS = {
     "login": "accounts.forms.CustomLoginForm",
-    "signup": "accounts.forms.CustomSignupForm"
+    "signup": "accounts.forms.CustomSignupForm",
 }
 
 # Crispy Forms configuration
@@ -202,11 +207,13 @@ STRIPE_LIVE_MODE = env.bool("STRIPE_LIVE_MODE", False)
 # Get it from the section in the Stripe dashboard where you added the webhook endpoint
 DJSTRIPE_WEBHOOK_SECRET = env("STRIPE_WHSEC")
 
-DJSTRIPE_USE_NATIVE_JSONFIELD = (
-    env.bool("DJSTRIPE_USE_NATIVE_JSONFIELD", True)  # We recommend setting to True for new installations
-)
+DJSTRIPE_USE_NATIVE_JSONFIELD = env.bool(
+    "DJSTRIPE_USE_NATIVE_JSONFIELD", True
+)  # We recommend setting to True for new installations
 DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
-DJSTRIPE_SUBSCRIBER_MODEL = "accounts.Company"  # Companies hold the subscription, not users
+DJSTRIPE_SUBSCRIBER_MODEL = (
+    "accounts.Company"  # Companies hold the subscription, not users
+)
 
 # Pricing Table ID on Stripe
 STRIPE_PRICING_TABLE_ID = env("STRIPE_PRICING_TABLE_ID")
