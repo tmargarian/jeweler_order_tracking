@@ -1,0 +1,8 @@
+.order-status-table-cell {
+    color: white !important;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}

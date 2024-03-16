@@ -14,16 +14,17 @@
     {% comment %} Local CSS {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+    {% block stylesheets %}{% endblock stylesheets %}
 </head>
 <body>
 <div class="container-fluid text-left m-0 p-0">
     {% include 'components/_sidebar_icons.html' %}
     {% include 'components/_sidebar.html' %}
-    <div class="page-content col">
-        <main>
+    <main>
+        <div class="page-content col">
             {% block content %}{% endblock content %}
-        </main>
-    </div>
+        </div>
+    </main>
 </div>
 
 
