@@ -15,7 +15,7 @@
             <th scope="col">Order Type</th>
             <th scope="col">Order Date</th>
             <th scope="col">Due Date</th>
-            <th scope="col">Order Price</th>
+            <th class="text-end" scope="col">Order Price</th>
             <th scope="col">Actions</th>
         </thead>
         <tbody>
@@ -34,7 +34,7 @@
                     <td>{{ order.order_type }}</td>
                     <td>{{ order.order_date }}</td>
                     <td>{{ order.order_due_date }}</td>
-                    <td>{{ order.quoted_price }}</td>
+                    <td class="text-end">{{ order.quoted_price }}</td>
                     <td>
                         <a href="{% url 'order_tracking:order_update' order.pk %}">Edit</a> |
                         {% if user.is_owner or user.is_employee %}
