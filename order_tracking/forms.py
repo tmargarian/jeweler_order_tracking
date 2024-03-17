@@ -1,4 +1,5 @@
 from django import forms
+from djmoney.forms import MoneyField
 from django.utils import timezone
 from .models import Order, Client
 from crispy_forms.helper import FormHelper
@@ -135,39 +136,39 @@ class OrderCreateForm(forms.ModelForm):
 
 
 class OrderUpdateForm(forms.ModelForm):
-    client = forms.ModelChoiceField(
-        label='Client',
-        queryset=Client.objects.all(),
-        required=False, initial=None, widget=forms.Select(attrs={'class': 'form-control'}))
-    order_type = forms.ChoiceField(
-        label='Order Type',
-        choices=[('Purchase', 'Purchase'), ('Repair', 'Repair'), ('Other', 'Other')],
-        required=False, widget=forms.Select(attrs={'class': 'form-control'}))
-    order_status = forms.ChoiceField(
-        label='Order Status',
-        choices=[('In Progress', 'In Progress'), ('Completed', 'Completed'), ('Cancelled', 'Cancelled')],
-        required=False, widget=forms.Select(attrs={'class': 'form-control'}))
-    order_date = forms.DateField(
-        label='Order Date',
-        required=False, widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now)
-    order_due_date = forms.DateField(
-        label='Due Date',
-        required=False, widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now)
-    estimated_cost = forms.DecimalField(
-        label='Estimated Cost',
-        min_value=0.00, max_value=1000000.00, max_digits=10, decimal_places=2, initial=0.00, required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'}))
-    quoted_price = forms.DecimalField(
-        label='Quoted Price',
-        min_value=0.00, max_value=1000000.00, max_digits=10, decimal_places=2, initial=0.00, required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'}))
-    security_deposit = forms.DecimalField(
-        label='Security Deposit',
-        min_value=0.00, max_value=1000000.00, max_digits=10, decimal_places=2, initial=0.00, required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'}))
-    order_photo = forms.ImageField(
-        label='Add Picture',
-        required=False, widget=forms.FileInput(attrs={'accept': 'image/*', 'capture': 'camera'}))
+    # client = forms.ModelChoiceField(
+    #     label='Client',
+    #     queryset=Client.objects.all(),
+    #     required=False, initial=None, widget=forms.Select(attrs={'class': 'form-control'}))
+    # order_type = forms.ChoiceField(
+    #     label='Order Type',
+    #     choices=[('Purchase', 'Purchase'), ('Repair', 'Repair'), ('Other', 'Other')],
+    #     required=False, widget=forms.Select(attrs={'class': 'form-control'}))
+    # order_status = forms.ChoiceField(
+    #     label='Order Status',
+    #     choices=[('In Progress', 'In Progress'), ('Completed', 'Completed'), ('Cancelled', 'Cancelled')],
+    #     required=False, widget=forms.Select(attrs={'class': 'form-control'}))
+    # order_date = forms.DateField(
+    #     label='Order Date',
+    #     required=False, widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now)
+    # order_due_date = forms.DateField(
+    #     label='Due Date',
+    #     required=False, widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now)
+    # estimated_cost = MoneyField(
+    #     label='Estimated Cost',
+    #     min_value=0.00, max_digits=10, initial=0.00, required=False,
+    #     widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    # quoted_price = forms.DecimalField(
+    #     label='Quoted Price',
+    #     min_value=0.00, max_value=1000000.00, max_digits=10, decimal_places=2, initial=0.00, required=False,
+    #     widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    # security_deposit = forms.DecimalField(
+    #     label='Security Deposit',
+    #     min_value=0.00, max_value=1000000.00, max_digits=10, decimal_places=2, initial=0.00, required=False,
+    #     widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    # order_photo = forms.ImageField(
+    #     label='Add Picture',
+    #     required=False, widget=forms.FileInput(attrs={'accept': 'image/*', 'capture': 'camera'}))
     content = forms.CharField(label='Add Note', widget=forms.Textarea(attrs={'rows': 2}), required=False)
 
     class Meta:
@@ -188,15 +189,13 @@ class OrderUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(OrderUpdateForm, self).__init__(*args, **kwargs)
+        if self.instance:
+            self.fields['client'].queryset = Client.objects.filter(
+                company=self.user.company,
+                deleted_flag=False
+            )
         self.helper = FormHelper()
         self.helper.form_tag = False
-
-    def get_queryset(self):
-        user = self.user
-        self.fields['client'].queryset = Client.objects \
-            .filter(company=user.company) \
-            .filter(deleted_flag=False)
-        return self.fields['client'].queryset
 
     def clean(self):
         cleaned_data = super().clean()
