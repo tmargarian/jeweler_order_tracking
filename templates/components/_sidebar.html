@@ -9,7 +9,13 @@
     <ul class="nav nav-pills flex-column mb-auto">
         <li>
             <a href="{% url 'order_tracking:order_list' %}"
-               class="nav-link text-white">
+               class="nav-link
+                   {% if 'order' in request.build_absolute_uri %}
+                      bg-white text-dark
+                   {% else %}
+                      bg-dark text-white
+                   {% endif %}"
+                >
                 <svg class="bi me-2" width="16" height="16">
                     <use xlink:href="#table"></use>
                 </svg>
@@ -18,7 +24,13 @@
         </li>
         <li>
             <a href="{% url 'order_tracking:client_list' %}"
-               class="nav-link text-white">
+               class="nav-link
+                     {% if 'client' in request.build_absolute_uri %}
+                        bg-white text-dark
+                     {% else %}
+                        bg-dark text-white
+                     {% endif %}"
+               >
                 <svg class="bi me-2" width="16" height="16">
                     <use xlink:href="#people-circle"></use>
                 </svg>
@@ -27,7 +39,7 @@
         </li>
         <li>
             <a href="{% url 'order_tracking:order_create' %}"
-               class="nav-link bg-light text-dark">
+               class="nav-link bg-primary text-white">
                 <svg class="bi me-2" width="16" height="16">
                     <use xlink:href="#plus-circle"></use>
                 </svg>
