@@ -1,10 +1,9 @@
 {% extends "base/_base_in_product.html" %}
 {% load static %}
+{% load humanize %}
 
 {% block content %}
-    <div class="container" style="height: 100vh; overflow-y: scroll;">
         <table class="table">
-
             <thead>
                 <th scope="col">#</th>
                 <th scope="col">Client Name</th>
@@ -22,7 +21,7 @@
                     <td>{{ client_list.first_name }} {{client_list.last_name}} </td>
                     <td>{{ client_list.phone_number }} </td>
                     <td>{{ client_list.email }} </td>
-                    <td>{{ client_list.total_spent_column | default:0 }} </td>
+                    <td>${{ client_list.total_spent_column | floatformat:2 | intcomma | default:0 }} </td>
                     <td>
                         <a href="{% url 'order_tracking:client_update' client_list.pk %}">Edit</a> |
                         {% if user.is_owner or user.is_employee %}
@@ -35,5 +34,4 @@
             </tbody>
 
         </table>
-    </div>
 {% endblock %}
