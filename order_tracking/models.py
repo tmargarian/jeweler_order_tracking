@@ -9,18 +9,39 @@ from django.db import models
 from accounts.models import Company
 from djmoney.models.fields import MoneyField
 
+
 class Order(models.Model):
+    ORDER_TYPE_CHOICES = [
+        ('in_progress', 'In Progress'),
+        ('cancelled', 'Cancelled'),
+        ('completed', 'Completed')
+    ]
+
+    ORDER_STATUS_CHOICES = [
+        ('purchase', 'Purchase'),
+        ('repair', 'Repair'),
+        ('other', 'Other')
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="orders")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
-    client = models.ForeignKey("Client", on_delete=models.CASCADE, related_name="orders", blank=True, null=True)
+    company = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="orders"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders"
+    )
+    client = models.ForeignKey(
+        "Client", on_delete=models.CASCADE, related_name="orders", blank=True, null=True
+    )
     order_date = models.DateField()
     order_due_date = models.DateField()
     estimated_cost = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
     quoted_price = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
-    security_deposit = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
-    order_type = models.CharField()
-    order_status = models.CharField()
+    security_deposit = MoneyField(
+        decimal_places=2, max_digits=10, default_currency="USD"
+    )
+    order_type = models.CharField(choices=ORDER_TYPE_CHOICES, default='purhcase')
+    order_status = models.CharField(choices=ORDER_STATUS_CHOICES, default='in_progress')
     order_photo = models.ImageField(upload_to="order_photos/", blank=True, null=True)
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -44,12 +65,16 @@ class Order(models.Model):
             img_io = BytesIO()
 
             # Define initial and final quality settings
-            initial_quality = 91  # Set it to a high value to allow more aggressive quality reduction
+            initial_quality = (
+                91  # Set it to a high value to allow more aggressive quality reduction
+            )
             final_quality = 1
 
             while True:
                 img_io.truncate(0)  # Clear the buffer
-                img_io.seek(0)  # Reset the position to write new data from the beginning
+                img_io.seek(
+                    0
+                )  # Reset the position to write new data from the beginning
 
                 # Attempt to compress the image with the current quality
                 img.save(img_io, format=format, quality=initial_quality)
@@ -65,8 +90,8 @@ class Order(models.Model):
                 initial_quality -= 10  # Reduce by 1 (fine-grained control)
 
             # Save the compressed image to a temporary location
-            temp_path = self.order_photo.path + '_temp'
-            with open(temp_path, 'wb') as f:
+            temp_path = self.order_photo.path + "_temp"
+            with open(temp_path, "wb") as f:
                 f.write(img_io.getvalue())
 
             # Replace the original image with the compressed image
@@ -74,9 +99,18 @@ class Order(models.Model):
             os.rename(temp_path, self.order_photo.path)
 
     def __str__(self):
-        return str('Order by' + " " + self.company.company_name + " " +
-                   ' for ' + self.client.first_name + " " + self.client.last_name
-                   if self.client else str(self.id))
+        return str(
+            "Order by"
+            + " "
+            + self.company.company_name
+            + " "
+            + " for "
+            + self.client.first_name
+            + " "
+            + self.client.last_name
+            if self.client
+            else str(self.id)
+        )
 
     def delete(self, using=None, keep_parents=False):
         # Soft delete associated notes
@@ -90,19 +124,29 @@ class Order(models.Model):
 class Client(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     client_already_exists = models.BooleanField()
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="clients")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="clients")
+    company = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="clients"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="clients"
+    )
     first_name = models.CharField()
     last_name = models.CharField()
     phone_number = models.CharField()
     email = models.EmailField()
-    total_spent = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, blank=True, null=True)
+    total_spent = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0.00, blank=True, null=True
+    )
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.first_name + " " + self.last_name if self.first_name and self.last_name else str(self.id)
+        return (
+            self.first_name + " " + self.last_name
+            if self.first_name and self.last_name
+            else str(self.id)
+        )
 
     def delete(self, using=None, keep_parents=False):
         self.deleted_flag = True
@@ -113,7 +157,9 @@ class Client(models.Model):
 
 class Note(models.Model):
     id = models.BigAutoField(primary_key=True, editable=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes"
+    )
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="notes")
     content = models.TextField(null=True, blank=True)
     timestamp = models.DateTimeField(default=timezone.now)
@@ -122,4 +168,6 @@ class Note(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return str('Note by' + ' ' + self.user.email + ' for Order #' + str(self.order.id))
+        return str(
+            "Note by" + " " + self.user.email + " for Order #" + str(self.order.id)
+        )
