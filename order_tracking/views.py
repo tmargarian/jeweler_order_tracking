@@ -1,8 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import reverse, redirect, get_object_or_404
 from django.db.models import Sum, Case, When, DecimalField, F
-from django.views.generic.edit import FormView
-from django.views.generic import ListView, UpdateView, DeleteView
+from django.views.generic import ListView, UpdateView, DeleteView, CreateView
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 
@@ -11,9 +10,7 @@ from .forms import OrderCreateForm, OrderUpdateForm, ClientUpdateForm
 from .models import Note, Order, Client
 
 
-class OrderListView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, ListView
-):
+class OrderListView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, ListView):
     template_name = "order_tracking/order_list.html"
     context_object_name = "order_list"
 
@@ -28,12 +25,14 @@ class OrderListView(
 
 
 class OrderCreateView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, FormView
+    LoginRequiredMixin,
+    CompleteProfileAndActiveSubscriptionMixin,
+    CreateView
 ):
     template_name = "order_tracking/order_create.html"
     context_object_name = "order_create"
     form_class = OrderCreateForm
-    success_url = "order_tracking:order_list"
+    success_url = reverse_lazy("order_tracking:order_list")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -56,15 +55,7 @@ class OrderCreateView(
                 "email": client.email
                 })
 
-        # Override get method to modify queryset before displaying the form
-        form = self.get_form()
-        form.fields["client"].queryset = form.get_filtered_clients(self.request.user)
-        return self.render_to_response(self.get_context_data(form=form))
-
-    def form_invalid(self, form):
-        form = self.get_form()
-        form.fields["client"].queryset = form.get_filtered_clients(self.request.user)
-        return super().form_invalid(form)
+        return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
         client_already_exists = self.request.POST.get("client_already_exists")
@@ -100,15 +91,13 @@ class OrderCreateView(
                 note = Note.objects.create(user=user, order=order, content=content)
                 note.save()
 
-            return redirect(self.get_success_url())
+            return super().form_valid(form)
 
         else:
-            return self.form_invalid(form)
+            return super().form_invalid(form)
 
 
-class OrderUpdateView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView
-):
+class OrderUpdateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView):
     model = Order
     template_name = "order_tracking/order_update.html"
     form_class = OrderUpdateForm
@@ -134,9 +123,7 @@ class OrderUpdateView(
         return super().form_valid(form)
 
 
-class OrderDeleteView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, DeleteView
-):
+class OrderDeleteView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, DeleteView):
     model = Order
     template_name = "order_tracking/order_delete.html"
     success_url = reverse_lazy("order_tracking:order_list")
@@ -157,9 +144,7 @@ class OrderDeleteView(
             return JsonResponse({"success": False, "error": str(e)})
 
 
-class NoteUpdateView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView
-):
+class NoteUpdateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView):
     def post(self, request, pk):
         content = self.request.POST.get("content")
         note_action = self.request.META.get("HTTP_X_NOTE_ACTION")

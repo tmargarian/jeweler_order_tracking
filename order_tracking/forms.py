@@ -49,69 +49,7 @@ class OrderCreateForm(forms.ModelForm):
         initial=None,
         widget=forms.Select(attrs={"class": "form-control"}),
     )
-    order_type = forms.ChoiceField(
-        label="Order Type",
-        choices=[("Purchase", "Purchase"), ("Repair", "Repair"), ("Other", "Other")],
-        required=False,
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-    order_status = forms.ChoiceField(
-        label="Order Status",
-        choices=[
-            ("In Progress", "In Progress"),
-            ("Completed", "Completed"),
-            ("Cancelled", "Cancelled"),
-        ],
-        required=False,
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-    order_date = forms.DateField(
-        label="Order Date",
-        required=False,
-        widget=forms.DateInput(attrs={"type": "date"}),
-        initial=timezone.now,
-    )
-    order_due_date = forms.DateField(
-        label="Due Date",
-        required=False,
-        widget=forms.DateInput(attrs={"type": "date"}),
-        initial=timezone.now,
-    )
-    estimated_cost = forms.DecimalField(
-        label="Estimated Cost",
-        min_value=0.00,
-        max_value=1000000.00,
-        max_digits=10,
-        decimal_places=2,
-        initial=0.00,
-        required=False,
-        widget=forms.NumberInput(attrs={"class": "form-control"}),
-    )
-    quoted_price = forms.DecimalField(
-        label="Quoted Price",
-        min_value=0.00,
-        max_value=1000000.00,
-        max_digits=10,
-        decimal_places=2,
-        initial=0.00,
-        required=False,
-        widget=forms.NumberInput(attrs={"class": "form-control"}),
-    )
-    security_deposit = forms.DecimalField(
-        label="Security Deposit",
-        min_value=0.00,
-        max_value=1000000.00,
-        max_digits=10,
-        decimal_places=2,
-        initial=0.00,
-        required=False,
-        widget=forms.NumberInput(attrs={"class": "form-control"}),
-    )
-    order_photo = forms.ImageField(
-        label="Add Picture",
-        required=False,
-        widget=forms.FileInput(attrs={"accept": "image/*", "capture": "camera"}),
-    )
+
     content = forms.CharField(
         label="Add Note", widget=forms.Textarea(attrs={"rows": 2}), required=False
     )
@@ -135,18 +73,22 @@ class OrderCreateForm(forms.ModelForm):
             "order_photo",
             "content",
         )
+        widgets = {
+            "order_date": forms.DateInput(attrs={"type": "date"}),
+            "order_due_date": forms.DateInput(attrs={"type": "date"})
+        }
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop("user", None)
+        self.user = kwargs.pop('user', None)
         super(OrderCreateForm, self).__init__(*args, **kwargs)
+        if self.user:
+            self.fields['client'].queryset = \
+                Client.objects.filter(
+                company=self.user.company, deleted_flag=False
+            )
+
         self.helper = FormHelper()
         self.helper.form_tag = False
-        self.get_filtered_clients(user)
-
-    def get_filtered_clients(self, user):
-        if user and user.is_authenticated:
-            return Client.objects.filter(company=user.company, deleted_flag=False)
-        return Client.objects.none()
 
     def clean(self):
         cleaned_data = super().clean()
@@ -226,10 +168,11 @@ class OrderUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
         super(OrderUpdateForm, self).__init__(*args, **kwargs)
-        if self.instance:
+        if self.user:
             self.fields["client"].queryset = Client.objects.filter(
                 company=self.user.company, deleted_flag=False
             )
+
         self.helper = FormHelper()
         self.helper.form_tag = False
 

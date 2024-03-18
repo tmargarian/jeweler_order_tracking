@@ -2,6 +2,7 @@ import os
 import uuid
 from PIL import Image
 from io import BytesIO
+from django.core.files.base import ContentFile
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.utils import timezone
@@ -12,15 +13,15 @@ from djmoney.models.fields import MoneyField
 
 class Order(models.Model):
     ORDER_TYPE_CHOICES = [
-        ('purchase', 'Purchase'),
-        ('repair', 'Repair'),
-        ('other', 'Other')
+        ("purchase", "Purchase"),
+        ("repair", "Repair"),
+        ("other", "Other"),
     ]
 
     ORDER_STATUS_CHOICES = [
-        ('in_progress', 'In Progress'),
-        ('cancelled', 'Cancelled'),
-        ('completed', 'Completed')
+        ("in_progress", "In Progress"),
+        ("cancelled", "Cancelled"),
+        ("completed", "Completed"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -33,70 +34,42 @@ class Order(models.Model):
     client = models.ForeignKey(
         "Client", on_delete=models.CASCADE, related_name="orders", blank=True, null=True
     )
-    order_date = models.DateField()
-    order_due_date = models.DateField()
+    order_date = models.DateField(default=timezone.now)
+    order_due_date = models.DateField(default=timezone.now)
     estimated_cost = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
     quoted_price = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
     security_deposit = MoneyField(
         decimal_places=2, max_digits=10, default_currency="USD"
     )
-    order_type = models.CharField(choices=ORDER_TYPE_CHOICES, default='purchase')
-    order_status = models.CharField(choices=ORDER_STATUS_CHOICES, default='in_progress')
+    order_type = models.CharField(choices=ORDER_TYPE_CHOICES, default="purchase")
+    order_status = models.CharField(choices=ORDER_STATUS_CHOICES, default="in_progress")
     order_photo = models.ImageField(upload_to="order_photos/", blank=True, null=True)
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     # function to upload and compress image
-    def save(self, *args, **kwargs):  # Max compression gets a 518 KB from 6 MB image
-        super(Order, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Save the model instance and the file initially
 
-        # Check if an image has been uploaded
-        if self.order_photo:
-            img = Image.open(self.order_photo.path)
+        if self.order_photo:  # Check if an image has been uploaded
+            img = Image.open(self.order_photo)
+            target_size = 300 * 1024  # Target size in bytes
 
-            # Define the target file size in bytes (e.g., 300 KB)
-            target_size = 300 * 1024  # 300 KB in bytes
-
-            # Get the image format (e.g., JPEG, PNG)
-            format = img.format
-
-            # Create a BytesIO buffer for image compression
+            # Compression logic (simplified for demonstration)
+            quality = 90  # Starting quality
             img_io = BytesIO()
+            while img_io.tell() < target_size and quality > 0:
+                img_io = BytesIO()  # Reset buffer
+                img.save(img_io, format="JPEG", quality=quality)
+                quality -= 10  # Decrease quality for the next iteration if needed
 
-            # Define initial and final quality settings
-            initial_quality = (
-                91  # Set it to a high value to allow more aggressive quality reduction
+            # Save the compressed image back to the FileField
+            self.order_photo.save(
+                self.order_photo.name, ContentFile(img_io.getvalue()), save=False
             )
-            final_quality = 1
 
-            while True:
-                img_io.truncate(0)  # Clear the buffer
-                img_io.seek(
-                    0
-                )  # Reset the position to write new data from the beginning
-
-                # Attempt to compress the image with the current quality
-                img.save(img_io, format=format, quality=initial_quality)
-
-                # Check the size of the compressed image
-                current_size = img_io.tell()
-
-                if current_size <= target_size or initial_quality <= final_quality:
-                    # If the size is below the target or the quality can't be reduced further, exit the loop
-                    break
-
-                # Reduce the image quality
-                initial_quality -= 10  # Reduce by 1 (fine-grained control)
-
-            # Save the compressed image to a temporary location
-            temp_path = self.order_photo.path + "_temp"
-            with open(temp_path, "wb") as f:
-                f.write(img_io.getvalue())
-
-            # Replace the original image with the compressed image
-            os.remove(self.order_photo.path)
-            os.rename(temp_path, self.order_photo.path)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return str(
@@ -134,8 +107,13 @@ class Client(models.Model):
     last_name = models.CharField()
     phone_number = models.CharField()
     email = models.EmailField()
-    total_spent = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00, blank=True, null=True
+    total_spent = MoneyField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        blank=True,
+        null=True,
+        default_currency="USD",
     )
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
