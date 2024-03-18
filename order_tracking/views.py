@@ -59,42 +59,37 @@ class OrderCreateView(
 
     def form_valid(self, form):
         client_already_exists = self.request.POST.get("client_already_exists")
+        user = self.request.user
+        order = form.save(commit=False)
 
-        if form.is_valid():
-            user = self.request.user
-            order = form.save(commit=False)
+        order.company = user.company
+        order.user = user
 
-            order.company = user.company
-            order.user = user
+        if client_already_exists == "True":
+            order.client = form.cleaned_data["client"]
+            order.save()
 
-            if client_already_exists == "True":
-                order.client = form.cleaned_data["client"]
-                order.save()
+        if client_already_exists == "False":
+            client = Client.objects.create(
+                company=user.company,
+                user=user,
+                client_already_exists=form.cleaned_data["client_already_exists"],
+                first_name=form.cleaned_data["first_name"],
+                last_name=form.cleaned_data["last_name"],
+                phone_number=form.cleaned_data["phone_number"],
+                email=form.cleaned_data["email"],
+            )
+            client.save()
 
-            if client_already_exists == "False":
-                client = Client.objects.create(
-                    company=user.company,
-                    user=user,
-                    client_already_exists=form.cleaned_data["client_already_exists"],
-                    first_name=form.cleaned_data["first_name"],
-                    last_name=form.cleaned_data["last_name"],
-                    phone_number=form.cleaned_data["phone_number"],
-                    email=form.cleaned_data["email"],
-                )
-                client.save()
+            order.client = client
+            order.save()
 
-                order.client = client
-                order.save()
+        content = form.cleaned_data["content"]
+        if content:
+            note = Note.objects.create(user=user, order=order, content=content)
+            note.save()
 
-            content = form.cleaned_data["content"]
-            if content:
-                note = Note.objects.create(user=user, order=order, content=content)
-                note.save()
-
-            return super().form_valid(form)
-
-        else:
-            return super().form_invalid(form)
+        return super().form_valid(form)
 
 
 class OrderUpdateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView):
@@ -104,7 +99,7 @@ class OrderUpdateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMi
     context_object_name = "order_update"
 
     def get_success_url(self):
-        return reverse("order_tracking:order_list")
+        return reverse_lazy("order_tracking:order_list")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
