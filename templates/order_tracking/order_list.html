@@ -30,8 +30,8 @@
                         {% endif %}
                     </td>
                     <td>{{ order.client.first_name }} {{ order.client.last_name }}</td>
-                    <td><div class="order-status-table-cell">{{ order.order_status }}</div></td>
-                    <td>{{ order.order_type }}</td>
+                    <td><div class="order-status-table-cell">{{ order.get_order_status_display }}</div></td>
+                    <td>{{ order.get_order_type_display }}</td>
                     <td>{{ order.order_date }}</td>
                     <td>{{ order.order_due_date }}</td>
                     <td class="text-end">{{ order.quoted_price }}</td>

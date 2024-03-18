@@ -12,15 +12,15 @@ from djmoney.models.fields import MoneyField
 
 class Order(models.Model):
     ORDER_TYPE_CHOICES = [
-        ('in_progress', 'In Progress'),
-        ('cancelled', 'Cancelled'),
-        ('completed', 'Completed')
-    ]
-
-    ORDER_STATUS_CHOICES = [
         ('purchase', 'Purchase'),
         ('repair', 'Repair'),
         ('other', 'Other')
+    ]
+
+    ORDER_STATUS_CHOICES = [
+        ('in_progress', 'In Progress'),
+        ('cancelled', 'Cancelled'),
+        ('completed', 'Completed')
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -40,7 +40,7 @@ class Order(models.Model):
     security_deposit = MoneyField(
         decimal_places=2, max_digits=10, default_currency="USD"
     )
-    order_type = models.CharField(choices=ORDER_TYPE_CHOICES, default='purhcase')
+    order_type = models.CharField(choices=ORDER_TYPE_CHOICES, default='purchase')
     order_status = models.CharField(choices=ORDER_STATUS_CHOICES, default='in_progress')
     order_photo = models.ImageField(upload_to="order_photos/", blank=True, null=True)
     deleted_flag = models.BooleanField(default=False)

@@ -1,5 +1,4 @@
 from django import forms
-from django.forms import Select, DateInput, ImageField
 from djmoney.forms import MoneyField
 from django.utils import timezone
 from .models import Order, Client
@@ -220,8 +219,8 @@ class OrderUpdateForm(forms.ModelForm):
         )
 
         widgets = {
-            "order_date": DateInput(attrs={"type": "date"}),
-            "order_due_date": DateInput(attrs={"type": "date"})
+            "order_date": forms.DateInput(attrs={"type": "date"}),
+            "order_due_date": forms.DateInput(attrs={"type": "date"})
         }
 
     def __init__(self, *args, **kwargs):
