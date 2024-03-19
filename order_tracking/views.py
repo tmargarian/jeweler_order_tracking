@@ -1,16 +1,20 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import reverse, redirect, get_object_or_404
+from django.shortcuts import reverse, get_object_or_404
+from django.urls import reverse_lazy
 from django.db.models import Sum, Case, When, DecimalField, F
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView
 from django.http import JsonResponse
-from django.urls import reverse_lazy
 
 from .mixins import CompleteProfileAndActiveSubscriptionMixin
 from .forms import OrderCreateForm, OrderUpdateForm, ClientUpdateForm
 from .models import Note, Order, Client
 
 
-class OrderListView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, ListView):
+class OrderListView(
+    LoginRequiredMixin,
+    CompleteProfileAndActiveSubscriptionMixin,
+    ListView
+):
     template_name = "order_tracking/order_list.html"
     context_object_name = "order_list"
 
@@ -61,7 +65,6 @@ class OrderCreateView(
         client_already_exists = self.request.POST.get("client_already_exists")
         user = self.request.user
         order = form.save(commit=False)
-
         order.company = user.company
         order.user = user
 
@@ -92,7 +95,11 @@ class OrderCreateView(
         return super().form_valid(form)
 
 
-class OrderUpdateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView):
+class OrderUpdateView(
+    LoginRequiredMixin,
+    CompleteProfileAndActiveSubscriptionMixin,
+    UpdateView
+):
     model = Order
     template_name = "order_tracking/order_update.html"
     form_class = OrderUpdateForm
@@ -118,7 +125,11 @@ class OrderUpdateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMi
         return super().form_valid(form)
 
 
-class OrderDeleteView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, DeleteView):
+class OrderDeleteView(
+    LoginRequiredMixin,
+    CompleteProfileAndActiveSubscriptionMixin,
+    DeleteView
+):
     model = Order
     template_name = "order_tracking/order_delete.html"
     success_url = reverse_lazy("order_tracking:order_list")
@@ -139,7 +150,11 @@ class OrderDeleteView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMi
             return JsonResponse({"success": False, "error": str(e)})
 
 
-class NoteUpdateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView):
+class NoteUpdateView(
+    LoginRequiredMixin,
+    CompleteProfileAndActiveSubscriptionMixin,
+    UpdateView
+):
     def post(self, request, pk):
         content = self.request.POST.get("content")
         note_action = self.request.META.get("HTTP_X_NOTE_ACTION")
@@ -165,7 +180,9 @@ class NoteUpdateView(LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMix
 
 
 class NoteDeleteView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, DeleteView
+    LoginRequiredMixin,
+    CompleteProfileAndActiveSubscriptionMixin,
+    DeleteView
 ):
     def post(self, request, *args, **kwargs):
         try:
@@ -181,7 +198,9 @@ class NoteDeleteView(
 
 
 class ClientListView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, ListView
+    LoginRequiredMixin,
+    CompleteProfileAndActiveSubscriptionMixin,
+    ListView
 ):
     model = Client
     template_name = "order_tracking/client_list.html"
@@ -209,7 +228,9 @@ class ClientListView(
 
 
 class ClientUpdateView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView
+    LoginRequiredMixin,
+    CompleteProfileAndActiveSubscriptionMixin,
+    UpdateView
 ):
     model = Client
     template_name = "order_tracking/client_update.html"
@@ -231,7 +252,9 @@ class ClientUpdateView(
 
 
 class ClientDeleteView(
-    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, DeleteView
+    LoginRequiredMixin,
+    CompleteProfileAndActiveSubscriptionMixin,
+    DeleteView
 ):
     model = Client
     template_name = "order_tracking/client_delete.html"
