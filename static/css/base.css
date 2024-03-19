@@ -16,3 +16,7 @@ main {
   margin-left: var(--sidebar-width-px);
   overflow-y: scroll;
 }
+
+.asteriskField {
+  display: none;
+}
