@@ -39,7 +39,7 @@ class Order(models.Model):
     estimated_cost = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
     quoted_price = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
     security_deposit = MoneyField(
-        decimal_places=2, max_digits=10, default_currency="USD"
+        default=0, decimal_places=2, max_digits=10, default_currency="USD"
     )
     order_type = models.CharField(choices=ORDER_TYPE_CHOICES, default="purchase")
     order_status = models.CharField(choices=ORDER_STATUS_CHOICES, default="in_progress")
