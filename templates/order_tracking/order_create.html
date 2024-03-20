@@ -3,25 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <form action="" method="post" class="bootstrap5" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.client_already_exists|as_crispy_field }}
-        {{ form.first_name|as_crispy_field }}
-        {{ form.last_name|as_crispy_field }}
-        {{ form.phone_number|as_crispy_field }}
-        {{ form.email|as_crispy_field }}
-        {{ form.client|as_crispy_field }}
-        {{ form.order_type|as_crispy_field }}
-        {{ form.order_status|as_crispy_field }}
-        {{ form.order_date|as_crispy_field }}
-        {{ form.order_due_date|as_crispy_field }}
-        {{ form.estimated_cost|as_crispy_field }}
-        {{ form.quoted_price|as_crispy_field }}
-        {{ form.security_deposit|as_crispy_field }}
-        {{ form.order_photo|as_crispy_field }}
-        {{ form.content|as_crispy_field }}
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+    {% crispy form %}
 {% endblock content %}
 
 {% block script %}
