@@ -2,8 +2,12 @@
 {% load static %}
 {% load humanize %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="/static/css/order_tracking.css">
+{% endblock stylesheets %}
+
 {% block content %}
-        <table class="table">
+        <table class="table table-striped">
             <thead>
                 <th scope="col">#</th>
                 <th scope="col">Client Name</th>
