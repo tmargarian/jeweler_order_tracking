@@ -1,6 +1,7 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, HTML, Row, Column, Submit
+from crispy_forms.bootstrap import PrependedAppendedText
 
 from .models import Order, Client
 
@@ -105,16 +106,27 @@ class OrderCreateForm(forms.ModelForm):
             ),
             HTML("""<h1 class="display-4">Order Fields</h1>"""),
             Row(
+                Column("order_type", css_class="col-md-6"),
+                Column("order_status", css_class="col-md-6"),
                 Column("order_date", css_class="col-md-6"),
                 Column("order_due_date", css_class="col-md-6"),
-                Column("estimated_cost", css_class="col-md-4"),
-                Column("quoted_price", css_class="col-md-4"),
-                Column("security_deposit", css_class="col-md-4"),
+                Column(
+                    PrependedAppendedText("estimated_cost", "$"),
+                    css_class="col-md-4",
+                ),
+                Column(
+                    PrependedAppendedText("quoted_price", "$"),
+                    css_class="col-md-4",
+                ),
+                Column(
+                    PrependedAppendedText("security_deposit", "$"),
+                    css_class="col-md-4",
+                ),
                 Column("order_photo", css_class="col-md-12"),
                 Column("content", css_class="col-md-12"),
-            )
+            ),
+            Submit("submit", value="Submit", css_class="btn btn-primary col-md-6"),
         )
-        self.helper.add_input(Submit("submit", "Create Order", css_class="btn btn-primary col-md-6"))
 
     def clean(self):
         cleaned_data = super().clean()

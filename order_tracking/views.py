@@ -49,8 +49,6 @@ class OrderCreateView(
 
         if is_ajax:
             client_id = request.headers.get("clientId")
-            print(f"client_id is {client_id}")
-            print(request.headers)
             client = Client.objects.get(id=client_id)
             return JsonResponse({
                 "first_name": client.first_name,
