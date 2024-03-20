@@ -1,6 +1,8 @@
 from django import forms
-from .models import Order, Client
 from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, HTML, Row, Column, Submit
+
+from .models import Order, Client
 
 
 class OrderCreateForm(forms.ModelForm):
@@ -38,7 +40,9 @@ class OrderCreateForm(forms.ModelForm):
         max_length=254,
         required=False,
         initial=None,
-        widget=forms.EmailInput(attrs={"class": "form-control"}),
+        widget=forms.EmailInput(
+            attrs={"class": "form-control", "placeholder": "example@company.com"}
+        ),
     )
     client = forms.ModelChoiceField(
         label="Client",
@@ -71,22 +75,46 @@ class OrderCreateForm(forms.ModelForm):
             "order_photo",
             "content",
         )
+
+        # This overrides widgets of ONLY the Order fields
+        # For other fields (client + content) edit the definitions above
         widgets = {
             "order_date": forms.DateInput(attrs={"type": "date"}),
-            "order_due_date": forms.DateInput(attrs={"type": "date"})
+            "order_due_date": forms.DateInput(attrs={"type": "date"}),
         }
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
+        self.user = kwargs.pop("user", None)
         super(OrderCreateForm, self).__init__(*args, **kwargs)
         if self.user:
-            self.fields['client'].queryset = \
-                Client.objects.filter(
+            self.fields["client"].queryset = Client.objects.filter(
                 company=self.user.company, deleted_flag=False
             )
 
         self.helper = FormHelper()
-        self.helper.form_tag = False
+        self.helper.form_class = "g-3"
+        self.helper.layout = Layout(
+            HTML("""<h1 class="display-4">Client Fields</h1>"""),
+            Row(
+                Column("client_already_exists", css_class="col-md-6"),
+                Column("client", css_class="col-md-6"),
+                Column("first_name", css_class="col-md-6"),
+                Column("last_name", css_class="col-md-6"),
+                Column("phone_number", css_class="col-md-6"),
+                Column("email", css_class="col-md-6"),
+            ),
+            HTML("""<h1 class="display-4">Order Fields</h1>"""),
+            Row(
+                Column("order_date", css_class="col-md-6"),
+                Column("order_due_date", css_class="col-md-6"),
+                Column("estimated_cost", css_class="col-md-4"),
+                Column("quoted_price", css_class="col-md-4"),
+                Column("security_deposit", css_class="col-md-4"),
+                Column("order_photo", css_class="col-md-12"),
+                Column("content", css_class="col-md-12"),
+            )
+        )
+        self.helper.add_input(Submit("submit", "Create Order", css_class="btn btn-primary col-md-6"))
 
     def clean(self):
         cleaned_data = super().clean()
@@ -102,7 +130,7 @@ class OrderCreateForm(forms.ModelForm):
         security_deposit = cleaned_data.get("security_deposit")
         order_photo = cleaned_data.get("order_photo")
 
-        if client_already_exists is False:
+        if not client_already_exists:
             if not first_name:
                 self.add_error("first_name", "This field is required.")
 
@@ -112,7 +140,7 @@ class OrderCreateForm(forms.ModelForm):
             if not phone_number:
                 self.add_error("phone_number", "This field is required.")
 
-        if client_already_exists is True:
+        if client_already_exists:
             if not client:
                 self.add_error("client", "This field is required.")
 
@@ -138,9 +166,7 @@ class OrderCreateForm(forms.ModelForm):
 
 class OrderUpdateForm(forms.ModelForm):
     content = forms.CharField(
-        label="Add Note",
-        widget=forms.Textarea(attrs={"rows": 2}),
-        required=False
+        label="Add Note", widget=forms.Textarea(attrs={"rows": 2}), required=False
     )
 
     class Meta:
@@ -160,7 +186,7 @@ class OrderUpdateForm(forms.ModelForm):
 
         widgets = {
             "order_date": forms.DateInput(attrs={"type": "date"}),
-            "order_due_date": forms.DateInput(attrs={"type": "date"})
+            "order_due_date": forms.DateInput(attrs={"type": "date"}),
         }
 
     def __init__(self, *args, **kwargs):

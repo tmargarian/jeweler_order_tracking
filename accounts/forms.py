@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError
 
 from localflavor.us.forms import USZipCodeField
 from phonenumber_field.formfields import PhoneNumberField
-from phonenumber_field.validators import validate_international_phonenumber
 from allauth.account.forms import LoginForm, SignupForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import *
