@@ -30,7 +30,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "7103-2601-647-4d7f-3290-8d9d-1f38-1f30-5568.ngrok-free.app",
+    "9239-2601-647-4d7f-3290-41df-4a4b-e1df-c67f.ngrok-free.app",
 ]
 
 # Application definition
@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "formtools",
     "djstripe",
-    "djmoney",
     "crispy_forms",
     "crispy_bootstrap5",
     "allauth",

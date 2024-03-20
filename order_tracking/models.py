@@ -1,4 +1,3 @@
-import os
 import uuid
 from PIL import Image
 from io import BytesIO
@@ -8,8 +7,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.db import models
 from accounts.models import Company
-from djmoney.models.fields import MoneyField
-
 
 class Order(models.Model):
     ORDER_TYPE_CHOICES = [
@@ -36,11 +33,9 @@ class Order(models.Model):
     )
     order_date = models.DateField(default=timezone.now)
     order_due_date = models.DateField(default=timezone.now)
-    estimated_cost = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
-    quoted_price = MoneyField(decimal_places=2, max_digits=10, default_currency="USD")
-    security_deposit = MoneyField(
-        default=0, decimal_places=2, max_digits=10, default_currency="USD"
-    )
+    estimated_cost = models.DecimalField(decimal_places=2, max_digits=10)
+    quoted_price = models.DecimalField(decimal_places=2, max_digits=10)
+    security_deposit = models.DecimalField(default=0, decimal_places=2, max_digits=10)
     order_type = models.CharField(choices=ORDER_TYPE_CHOICES, default="purchase")
     order_status = models.CharField(choices=ORDER_STATUS_CHOICES, default="in_progress")
     order_photo = models.ImageField(upload_to="order_photos/", blank=True, null=True)
@@ -107,13 +102,12 @@ class Client(models.Model):
     last_name = models.CharField()
     phone_number = models.CharField()
     email = models.EmailField()
-    total_spent = MoneyField(
+    total_spent = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         default=0.00,
         blank=True,
         null=True,
-        default_currency="USD",
     )
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
