@@ -1,5 +1,6 @@
 :root{
-  --sidebar-width-px: 280px;
+  --sidebar-width-norm: 280px;
+  --sidebar-width-sm: 4.5rem;
 }
 
 html,
@@ -13,7 +14,7 @@ main {
 }
 
 .page-content {
-  margin-left: var(--sidebar-width-px);
+  margin-left: var(--sidebar-width-norm);
   overflow-y: scroll;
 }
 

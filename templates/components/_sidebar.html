@@ -1,72 +1,72 @@
-<div class="sidebar-element d-flex flex-column flex-shrink-0 p-3 text-white bg-dark min-vh-100">
-    <a href="/static" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-        <svg class="bi me-2" width="40" height="32">
+<div class="sidebar-element d-flex flex-column text-white bg-dark">
+    <a href="/static" class="bootstrap-anchor d-flex align-items-center text-white text-decoration-none">
+        <svg class="bi-main">
             <use xlink:href="#bootstrap"></use>
         </svg>
-        <span class="fs-4">Jeweler Pro</span>
+        <span class="title-span fs-4">Jeweler Pro</span>
     </a>
-    <hr>
+    <hr class="top-hr">
     <ul class="nav nav-pills flex-column mb-auto">
         <li>
             <a href="{% url 'order_tracking:order_list' %}"
-               class="nav-link
+               class="d-flex align-items-center nav-link
                    {% if 'order' in request.build_absolute_uri %}
                       bg-white text-dark
                    {% else %}
                       bg-dark text-white
                    {% endif %}"
-                >
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#table"></use>
-                </svg>
-                Orders
+               >
+               <svg class="bi">
+                   <use xlink:href="#table"></use>
+               </svg>
+               <div class="sidebar-btn">Orders</div>
             </a>
         </li>
         <li>
             <a href="{% url 'order_tracking:client_list' %}"
-               class="nav-link
+               class="d-flex align-items-center nav-link
                      {% if 'client' in request.build_absolute_uri %}
                         bg-white text-dark
                      {% else %}
                         bg-dark text-white
                      {% endif %}"
                >
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#people-circle"></use>
-                </svg>
-                Clients
+               <svg class="bi">
+                   <use xlink:href="#people-circle"></use>
+               </svg>
+               <div class="sidebar-btn">Clients</div>
             </a>
         </li>
         <li>
             <a href="{% url 'order_tracking:order_create' %}"
-               class="nav-link bg-primary text-white">
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#plus-circle"></use>
-                </svg>
-                New Order
+               class="d-flex align-items-center nav-link bg-primary text-white">
+               <svg class="bi">
+                   <use xlink:href="#plus-circle"></use>
+               </svg>
+                <div class="sidebar-btn"> New Order</div>
             </a>
         </li>
-        <hr>
-        <div class="dropdown">
-            <a href="#"
-               class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
-               id="dropdownUser1"
-               data-bs-toggle="dropdown"
-               aria-expanded="false">
-                <img src="https://i.pinimg.com/564x/b8/72/ab/b872ab0442e7fa8ab62b3d10be5aff22.jpg"
-                     alt=""
-                     width="32"
-                     height="32"
-                     class="rounded-circle me-2">
-                <strong> {{ user.username }} </strong>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-                <li><a class="dropdown-item" href="#">My Profile</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="{% url 'account_logout' %}">Sign out</a></li>
-            </ul>
-        </div>
     </ul>
+    <hr>
+    <div class="dropdown">
+        <a href="#"
+           class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+           id="dropdownUser1"
+           data-bs-toggle="dropdown"
+           aria-expanded="false">
+            <img src="https://i.pinimg.com/564x/b8/72/ab/b872ab0442e7fa8ab62b3d10be5aff22.jpg"
+                 alt=""
+                 width="32"
+                 height="32"
+                 class="rounded-circle">
+            <strong class="bottom-username"> {{ user.username }} </strong>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+            <li><a class="dropdown-item" href="#">My Profile</a></li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="{% url 'account_logout' %}">Sign out</a></li>
+        </ul>
+    </div>
 </div>
