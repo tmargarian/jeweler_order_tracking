@@ -1,91 +1,154 @@
 {% extends "base/_base_in_product.html" %}
 {% load static %}
 {% load humanize %}
+{% load template_tags %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="{% static 'css/order_tracking.css' %}">
+  <link rel="stylesheet" href="{% static 'css/order_tracking.css' %}">
 {% endblock stylesheets %}
 
 {% block content %}
-    <table class="table table-striped">
-        <thead>
-            <th class="text-center" scope="col">#</th>
-            <th scope="col">Order Picture</th>
-            <th scope="col">Client Name</th>
-            <th class="text-center" scope="col">Order Status</th>
-            <th scope="col">Order Type</th>
-            <th scope="col">Order Date</th>
-            <th scope="col">Due Date</th>
-            <th class="text-end" scope="col">Order Price</th>
-            <th scope="col">Actions</th>
-        </thead>
-        <tbody>
-            {% for order in order_list %}
-                <tr class="align-middle">
-                    <th class="text-center" scope="row">{{ forloop.counter }}</th>
-                    <td>
-                        {% if order.order_photo %}
-                            <img class="rounded-image" src="{{ order.order_photo.url }}" alt="Order Photo">
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td>{{ order.client.first_name }} {{ order.client.last_name }}</td>
-                    <td><div class="order-status-table-cell">{{ order.get_order_status_display }}</div></td>
-                    <td>{{ order.get_order_type_display }}</td>
-                    <td>{{ order.order_date }}</td>
-                    <td>{{ order.order_due_date }}</td>
-                    <td class="text-end">${{ order.quoted_price | floatformat:2 | intcomma }}</td>
-                    <td>
-                        <a href="{% url 'order_tracking:order_update' order.pk %}">Edit</a> |
-                        {% if user.is_owner or user.is_employee %}
-                        <a href="{% url 'order_tracking:order_delete' order.pk %}">Delete</a>
-                        {% endif %}
-                    </td>
+  {# Tools: Search | Sort | # of Order by Page #}
+  {# Paginator Selector #}
+  <div class="row justify-content-end p-2">
+    <form method="get" class="form-floating col-2" id="orderListPaginatorForm">
+      <select class="form-select" id="orderPerPageSelector"
+              name="paginate_by"  {# This is what's passed in the GET request #}
+              aria-label="Orders per Page Selector">
+      {% for page_option in pagination_options %}
+      	<option value="{{ page_option.0 }}"
+                {% if request.GET.paginate_by == page_option.0|stringformat:"s" %}
+                	selected
+                {% elif not request.GET.paginate_by and page_option.0 == 10 %}
+                  selected
+                {% endif %} >
+          {{ page_option.1 }}
+        </option>
+      {% endfor %}
 
-                </tr>
-            {% endfor %}
+      </select>
+      <label for="orderPerPageSelector">Orders per Page</label>
+    </form>
+  </div>
+  {# Order Table #}
+  <table class="table table-striped">
+    <thead>
+      <th class="text-center" scope="col">#</th>
+      <th scope="col">Order Picture</th>
+      <th scope="col">Client Name</th>
+      <th class="text-center" scope="col">Order Status</th>
+      <th scope="col">Order Type</th>
+      <th scope="col">Order Date</th>
+      <th scope="col">Due Date</th>
+      <th class="text-end" scope="col">Order Price</th>
+      <th scope="col">Actions</th>
+    </thead>
+    <tbody>
+      {% for order in order_list %}
+        <tr class="align-middle">
+          <th class="text-center" scope="row">{{ forloop.counter }}</th>
+          <td>
+            {% if order.order_photo %}
+              <img class="rounded-image" src="{{ order.order_photo.url }}" alt="Order Photo">
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>{{ order.client.first_name }} {{ order.client.last_name }}</td>
+          <td>
+            <div class="order-status-table-cell">{{ order.get_order_status_display }}</div>
+          </td>
+          <td>{{ order.get_order_type_display }}</td>
+          <td>{{ order.order_date }}</td>
+          <td>{{ order.order_due_date }}</td>
+          <td class="text-end">${{ order.quoted_price | floatformat:2 | intcomma }}</td>
+          <td>
+            <a href="{% url 'order_tracking:order_update' order.pk %}">Edit</a> |
+            {% if user.is_owner or user.is_employee %}
+              <a href="{% url 'order_tracking:order_delete' order.pk %}">Delete</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
 
-            {% comment %} Modal for displaying image {% endcomment %}
-            <div id="imageModal" class="modal">
-                <span class="close" id="closeModal">&times;</span>
-                <img class="modal-content" id="modalImage" src="" alt="">
-            </div>
-        </tbody>
-    </table>
+      {% comment %} Modal for displaying image {% endcomment %}
+      <div id="imageModal" class="modal">
+        <span class="close" id="closeModal">&times;</span>
+        <img class="modal-content" id="modalImage" src="" alt="">
+      </div>
+    </tbody>
+  </table>
+
+  {# Pagination #}
+  {% if page_obj %} {# Don't show the paginator is Show All is selected #}
+    <nav aria-label="Page Navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item {% if not page_obj.has_previous %} disabled {% endif %} ">
+          <a class="page-link" href="{% if page_obj.has_previous %} {% query_transform page=page_obj.previous_page_number %} {% endif %}">
+            Previous
+          </a>
+        </li>
+
+        <li class="page-item">
+          <a class="page-link" href="{% query_transform page=1 %}">
+            First
+          </a>
+        </li>
+
+        <li class="page-item">
+          <a class="page-link active">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </a>
+        </li>
+
+        <li class="page-item">
+          <a class="page-link" href="{% query_transform page=page_obj.paginator.num_pages %}">
+            Last
+          </a>
+        </li>
+
+        <li class="page-item {% if not page_obj.has_next %} disabled {% endif %}">
+          <a class="page-link" href="{% if page_obj.has_next %} {% query_transform page=page_obj.next_page_number %} {% endif %}">
+            Next
+          </a>
+        </li>
+      </ul>
+    </nav>
+  {% endif %}
 {% endblock content %}
 
 {% block script %}
-    <script>
-        // Get the modal and image elements
-        let modal = document.getElementById("imageModal");
-        let modalImg = document.getElementById("modalImage");
+  <script>
+      // Get the modal and image elements
+      let modal = document.getElementById("imageModal");
+      let modalImg = document.getElementById("modalImage");
 
-        // Get all images with the class "rounded-image"
-        let images = document.querySelectorAll(".rounded-image");
+      // Get all images with the class "rounded-image"
+      let images = document.querySelectorAll(".rounded-image");
 
-        // Get the close button
-        let closeModal = document.getElementById("closeModal");
+      // Get the close button
+      let closeModal = document.getElementById("closeModal");
 
-        // Loop through all images and add an event listener to each
-        images.forEach(function(image) {
-            image.addEventListener("click", function() {
-                modal.style.display = "block";
-                modalImg.src = this.src;
-            });
-        });
+      // Loop through all images and add an event listener to each
+      images.forEach(function (image) {
+          image.addEventListener("click", function () {
+              modal.style.display = "block";
+              modalImg.src = this.src;
+          });
+      });
 
-        // Close the modal when the close button is clicked
-        closeModal.onclick = function() {
-            modal.style.display = "none";
-        };
+      // Close the modal when the close button is clicked
+      closeModal.onclick = function () {
+          modal.style.display = "none";
+      };
 
-        // Close the modal when the user clicks outside the modal
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = "none";
-            }
-        };
-    </script>
-    <script src="/static/js/orderTrackingStatusBgColor.js"></script>
+      // Close the modal when the user clicks outside the modal
+      window.onclick = function (event) {
+          if (event.target === modal) {
+              modal.style.display = "none";
+          }
+      };
+  </script>
+  <script src="/static/js/orderTrackingStatusBgColor.js"></script>
+  <script src="/static/js/orderTrackingPaginatorAutoSubmit.js"></script>
 {% endblock script %}

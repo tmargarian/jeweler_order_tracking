@@ -11,27 +11,49 @@ from .models import Note, Order, Client
 
 
 class OrderListView(
-    LoginRequiredMixin,
-    CompleteProfileAndActiveSubscriptionMixin,
-    ListView
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, ListView
 ):
     template_name = "order_tracking/order_list.html"
     context_object_name = "order_list"
+    paginate_by = 10  # Default pagination
+
+    PAGINATION_OPTIONS = [
+        (10, '10 (Default)'),
+        (20, '20'),
+        (30, '30'),
+        (-1, 'Show All')
+    ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["pagination_options"] = self.PAGINATION_OPTIONS
+        return context
+
+    def get_paginate_by(self, queryset):
+        """Pulling the paginate_by from the page (if changed by user) or using the
+        Default of 10"""
+        paginate_by = int(self.request.GET.get("paginate_by", self.paginate_by))
+        if paginate_by == -1:
+            return None  # Disable pagination
+        else:
+            return paginate_by
+
 
     def get_queryset(self):
         user = self.request.user
         queryset = (
-            Order.objects.filter(company=user.company)
-            .filter(deleted_flag=False)
-            .filter(client__company=user.company)
+            Order.objects
+                .filter(company=user.company)
+                .filter(deleted_flag=False)
+                .filter(client__company=user.company)
+                .order_by('-created_at')
         )
         return queryset
 
 
 class OrderCreateView(
-    LoginRequiredMixin,
-    CompleteProfileAndActiveSubscriptionMixin,
-    CreateView
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, CreateView
 ):
     template_name = "order_tracking/order_create.html"
     context_object_name = "order_create"
@@ -50,12 +72,14 @@ class OrderCreateView(
         if is_ajax:
             client_id = request.headers.get("clientId")
             client = Client.objects.get(id=client_id)
-            return JsonResponse({
-                "first_name": client.first_name,
-                "last_name": client.last_name,
-                "phone_number": client.phone_number,
-                "email": client.email
-                })
+            return JsonResponse(
+                {
+                    "first_name": client.first_name,
+                    "last_name": client.last_name,
+                    "phone_number": client.phone_number,
+                    "email": client.email,
+                }
+            )
 
         return super().get(request, *args, **kwargs)
 
@@ -94,9 +118,7 @@ class OrderCreateView(
 
 
 class OrderUpdateView(
-    LoginRequiredMixin,
-    CompleteProfileAndActiveSubscriptionMixin,
-    UpdateView
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView
 ):
     model = Order
     template_name = "order_tracking/order_update.html"
@@ -124,9 +146,7 @@ class OrderUpdateView(
 
 
 class OrderDeleteView(
-    LoginRequiredMixin,
-    CompleteProfileAndActiveSubscriptionMixin,
-    DeleteView
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, DeleteView
 ):
     model = Order
     template_name = "order_tracking/order_delete.html"
@@ -149,9 +169,7 @@ class OrderDeleteView(
 
 
 class NoteUpdateView(
-    LoginRequiredMixin,
-    CompleteProfileAndActiveSubscriptionMixin,
-    UpdateView
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView
 ):
     def post(self, request, pk):
         content = self.request.POST.get("content")
@@ -178,9 +196,7 @@ class NoteUpdateView(
 
 
 class NoteDeleteView(
-    LoginRequiredMixin,
-    CompleteProfileAndActiveSubscriptionMixin,
-    DeleteView
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, DeleteView
 ):
     def post(self, request, *args, **kwargs):
         try:
@@ -196,9 +212,7 @@ class NoteDeleteView(
 
 
 class ClientListView(
-    LoginRequiredMixin,
-    CompleteProfileAndActiveSubscriptionMixin,
-    ListView
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, ListView
 ):
     model = Client
     template_name = "order_tracking/client_list.html"
@@ -226,9 +240,7 @@ class ClientListView(
 
 
 class ClientUpdateView(
-    LoginRequiredMixin,
-    CompleteProfileAndActiveSubscriptionMixin,
-    UpdateView
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView
 ):
     model = Client
     template_name = "order_tracking/client_update.html"
@@ -250,9 +262,7 @@ class ClientUpdateView(
 
 
 class ClientDeleteView(
-    LoginRequiredMixin,
-    CompleteProfileAndActiveSubscriptionMixin,
-    DeleteView
+    LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, DeleteView
 ):
     model = Client
     template_name = "order_tracking/client_delete.html"
