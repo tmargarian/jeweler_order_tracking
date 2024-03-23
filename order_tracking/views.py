@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from .mixins import CompleteProfileAndActiveSubscriptionMixin
 from .forms import OrderCreateForm, OrderUpdateForm, ClientUpdateForm
 from .models import Note, Order, Client
+from accounts.models import UserPreferences
 
 
 class OrderListView(
@@ -15,25 +16,31 @@ class OrderListView(
 ):
     template_name = "order_tracking/order_list.html"
     context_object_name = "order_list"
-    paginate_by = 10  # Default pagination
-
-    PAGINATION_OPTIONS = [
-        (10, '10 (Default)'),
-        (20, '20'),
-        (30, '30'),
-        (-1, 'Show All')
-    ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["pagination_options"] = self.PAGINATION_OPTIONS
+        user_preferences, created = (UserPreferences.objects
+                                     .get_or_create(user_id = self.request.user.id))
+        context["pagination_options"] = UserPreferences.PAGINATION_OPTIONS
+        context["user_pagination_setting"] = user_preferences.orders_per_page
+
         return context
 
     def get_paginate_by(self, queryset):
-        """Pulling the paginate_by from the page (if changed by user) or using the
-        Default of 10"""
-        paginate_by = int(self.request.GET.get("paginate_by", self.paginate_by))
+        """
+        Pulling the paginate_by from the page (if changed by user) or using the
+        UserPreferences setting (10 by default)
+        """
+        user_preferences, created = (UserPreferences.objects
+                                     .get_or_create(user_id = self.request.user.id))
+        paginate_by = int(self.request.GET.get("paginate_by", user_preferences.orders_per_page))
+
+        # Update user preferences
+        if user_preferences.orders_per_page != paginate_by:
+            user_preferences.orders_per_page = paginate_by
+            user_preferences.save()
+
         if paginate_by == -1:
             return None  # Disable pagination
         else:

@@ -5,13 +5,19 @@ from django.contrib.auth import get_user_model
 from allauth.account.signals import user_signed_up
 from djstripe import webhooks
 
-from .models import UserProfile, Company, Owner
+from .models import UserProfile, UserPreferences, Company, Owner
 
 
 @receiver(user_signed_up)
 def create_user_profile(sender, **kwargs):
     user_profile = UserProfile(user_id=kwargs["user"].id)
     user_profile.save()
+
+@receiver(user_signed_up)
+def create_user_preferences(sender, **kwargs):
+    user_preferences = UserPreferences(user_id=kwargs["user"].id)
+    user_preferences.save()
+
 
 
 @receiver(user_signed_up)

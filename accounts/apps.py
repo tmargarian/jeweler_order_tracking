@@ -11,5 +11,6 @@ class AccountsConfig(AppConfig):
         from . import signals
 
         user_signed_up.connect(signals.create_user_profile)
+        user_signed_up.connect(signals.create_user_preferences)
         user_signed_up.connect(signals.create_owner)
         user_signed_up.connect(signals.create_company)

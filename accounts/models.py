@@ -13,7 +13,9 @@ class CustomUser(AbstractUser):
     # Email is the only field that CANNOT be empty to complete signup
     email = models.EmailField(max_length=100, blank=False, null=False)
     # The rest of the fields can be filled out after signup
-    company = models.ForeignKey("Company", on_delete=models.CASCADE, related_name="users", blank=True, null=True)
+    company = models.ForeignKey(
+        "Company", on_delete=models.CASCADE, related_name="users", blank=True, null=True
+    )
     is_owner = models.BooleanField(default=True)
     is_employee = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
@@ -23,9 +25,12 @@ class CustomUser(AbstractUser):
     last_name = None
     phone_number = None
 
+
 # Secondary data stored in the UserProfile (phone numbers | full name)
 class UserProfile(models.Model):
-    user = models.OneToOneField("CustomUser", on_delete=models.CASCADE, related_name="profiles")
+    user = models.OneToOneField(
+        "CustomUser", on_delete=models.CASCADE, related_name="profiles"
+    )
     first_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True, null=True)
     phone_number = PhoneNumberField(blank=True, null=True)
@@ -33,18 +38,43 @@ class UserProfile(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.first_name + " " + self.last_name if self.first_name and self.last_name else str(self.id)
+        return (
+            self.first_name + " " + self.last_name
+            if self.first_name and self.last_name
+            else str(self.id)
+        )
+
+
+# User Preferences (order per page, etc.)
+class UserPreferences(models.Model):
+    PAGINATION_OPTIONS = (
+        (10, "10 (Default)"),
+        (20, "20"),
+        (30, "30"),
+        (-1, "Show All"),
+    )
+
+    user = models.OneToOneField("CustomUser", on_delete=models.CASCADE)
+    orders_per_page = models.IntegerField(choices=PAGINATION_OPTIONS, default=10, blank=False)
 
 
 class Company(models.Model):
-    owner = models.OneToOneField("Owner", on_delete=models.SET_NULL, related_name="owners", null=True)
+    owner = models.OneToOneField(
+        "Owner", on_delete=models.SET_NULL, related_name="owners", null=True
+    )
     subscription = models.ForeignKey(
-        'djstripe.Subscription', null=True, blank=True, on_delete=models.SET_NULL,
-        help_text="The team's Stripe Subscription object, if it exists"
+        "djstripe.Subscription",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        help_text="The team's Stripe Subscription object, if it exists",
     )
     customer = models.ForeignKey(
-        'djstripe.Customer', null=True, blank=True, on_delete=models.SET_NULL,
-        help_text="The user's Stripe Customer object, if it exists"
+        "djstripe.Customer",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        help_text="The user's Stripe Customer object, if it exists",
     )
     company_name = models.CharField(max_length=100, blank=True, null=True)
     address_lines = models.CharField(max_length=200, blank=True, null=True)
@@ -69,8 +99,12 @@ class Owner(models.Model):
     # An owner is tied to a single company and user.
     # A company can't have >1 owner
     # A user can't be related 2 owners
-    company = models.OneToOneField("Company", on_delete=models.CASCADE, null=True, related_name="owners")
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="owners")
+    company = models.OneToOneField(
+        "Company", on_delete=models.CASCADE, null=True, related_name="owners"
+    )
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="owners"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -79,9 +113,13 @@ class Owner(models.Model):
 
 
 class Employee(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="employees")
+    company = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="employees"
+    )
     # One User can only be one Employee and vice versa.
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="employees")
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="employees"
+    )
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

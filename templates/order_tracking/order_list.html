@@ -19,7 +19,7 @@
       	<option value="{{ page_option.0 }}"
                 {% if request.GET.paginate_by == page_option.0|stringformat:"s" %}
                 	selected
-                {% elif not request.GET.paginate_by and page_option.0 == 10 %}
+                {% elif not request.GET.paginate_by and page_option.0 == user_pagination_setting %}
                   selected
                 {% endif %} >
           {{ page_option.1 }}
@@ -30,6 +30,8 @@
       <label for="orderPerPageSelector">Orders per Page</label>
     </form>
   </div>
+
+  <div>{{ user_pagination_setting }}</div>
   {# Order Table #}
   <table class="table table-striped">
     <thead>
