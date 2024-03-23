@@ -7,6 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.db import models
 from accounts.models import Company
+from phonenumber_field.modelfields import PhoneNumberField
 
 class Order(models.Model):
     ORDER_TYPE_CHOICES = [
@@ -100,7 +101,7 @@ class Client(models.Model):
     )
     first_name = models.CharField()
     last_name = models.CharField()
-    phone_number = models.CharField()
+    phone_number = PhoneNumberField(blank=True, null=True)
     email = models.EmailField()
     total_spent = models.DecimalField(
         max_digits=10,
