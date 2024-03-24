@@ -33,7 +33,7 @@ class UserProfile(models.Model):
     )
     first_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True, null=True)
-    phone_number = PhoneNumberField(blank=True, null=True)
+    phone_number = PhoneNumberField(blank=True, null=True, region="US")
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
