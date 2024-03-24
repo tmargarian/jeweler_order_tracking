@@ -101,7 +101,7 @@ class Client(models.Model):
     )
     first_name = models.CharField()
     last_name = models.CharField()
-    phone_number = PhoneNumberField(blank=True, null=True)
+    phone_number = PhoneNumberField(blank=True, null=True, region="US")
     email = models.EmailField()
     total_spent = models.DecimalField(
         max_digits=10,

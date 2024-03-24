@@ -53,9 +53,7 @@ def remove_from_order_by(context, remove, **kwargs):
     query = context["request"].GET.copy()
 
     if remove in query["order_by"]:
-        print(query["order_by"])
         query["order_by"] = query["order_by"].replace(remove, "").strip(",")
-        print(query["order_by"])
 
     if not query["order_by"]:
         del query["order_by"]

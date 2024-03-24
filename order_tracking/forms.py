@@ -1,4 +1,5 @@
 from django import forms
+from phonenumber_field.formfields import PhoneNumberField
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, HTML, Row, Column, Submit
 from crispy_forms.bootstrap import PrependedAppendedText
@@ -29,10 +30,10 @@ class OrderCreateForm(forms.ModelForm):
         initial=None,
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
-    phone_number = forms.CharField(
+    phone_number = PhoneNumberField(
         label="Client Phone Number",
-        max_length=20,
-        required=False,
+        region="US",
+        required=True,
         initial=None,
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )

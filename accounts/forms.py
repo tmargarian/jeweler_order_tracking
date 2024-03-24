@@ -65,6 +65,7 @@ class UserProfileForm(forms.ModelForm):
         self.fields["last_name"].label = "Last Name"
         self.fields["phone_number"].label = "Phone Number"
 
+    # TODO: Check if this is requried considering the model already has PhoneNumberField
     phone_number = PhoneNumberField(region="US", required=False)
 
     class Meta:
