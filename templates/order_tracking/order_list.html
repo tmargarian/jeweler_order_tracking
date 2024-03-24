@@ -39,8 +39,26 @@
       <th scope="col">Client Name</th>
       <th class="text-center" scope="col">Order Status</th>
       <th scope="col">Order Type</th>
-      <th scope="col">Order Date</th>
-      <th scope="col">Due Date</th>
+      <th scope="col">
+        Order Date
+        {% if not "order_date" in request.GET.order_by %}
+          <a href="{% add_to_order_by "order_date" %}"> — </a>
+        {% elif "-order_date" in request.GET.order_by %}
+          <a href="{% remove_from_order_by "-order_date" %}" %}> &#x25B2; </a>
+        {% elif "order_date" in request.GET.order_by %}
+          <a href="{% add_to_order_by "-order_date" %}"> &#x25BC; </a>
+        {% endif %}
+      </th>
+      <th scope="col">
+        Due Date
+        {% if not "order_due_date" in request.GET.order_by %}
+          <a href="{% add_to_order_by "order_due_date" %}"> — </a>
+        {% elif "-order_due_date" in request.GET.order_by %}
+          <a href="{% remove_from_order_by "-order_due_date" %}" %}> &#x25B2; </a>
+        {% elif "order_due_date" in request.GET.order_by %}
+          <a href="{% add_to_order_by "-order_due_date" %}"> &#x25BC; </a>
+        {% endif %}
+      </th>
       <th class="text-end" scope="col">Order Price</th>
       <th scope="col">Actions</th>
     </thead>

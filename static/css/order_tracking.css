@@ -10,3 +10,7 @@
  .form-floating>label {
      left: auto;
  }
+
+a {
+    text-decoration: none;
+}

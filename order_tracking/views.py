@@ -14,8 +14,19 @@ from accounts.models import UserPreferences
 class OrderListView(
     LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, ListView
 ):
+    model = Order
     template_name = "order_tracking/order_list.html"
     context_object_name = "order_list"
+    ordering = "-created_at"
+
+    def get_ordering(self):
+        default_order = super().get_ordering()
+        order_attributes = self.request.GET.get("order_by")
+
+        if order_attributes:
+            return order_attributes.split(",")
+        else:
+            return default_order
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -48,13 +59,11 @@ class OrderListView(
 
 
     def get_queryset(self):
-        user = self.request.user
         queryset = (
-            Order.objects
-                .filter(company=user.company)
-                .filter(deleted_flag=False)
-                .filter(client__company=user.company)
-                .order_by('-created_at')
+            super()
+                .get_queryset()  # this is needed for self.ordering and get_ordering() to work
+                .filter(company=self.request.user.company)  # only orders of the user's company
+                .filter(deleted_flag=False)  # accounting for soft-deleted orders
         )
         return queryset
 
