@@ -57,10 +57,5 @@
 {% endblock content %}
 
 {% block script %}
-    <script>
-        const userProfileUrl = "{% url 'accounts:profile_completion' %}"
-        document.getElementById('id_1-zip_code')
-            .addEventListener("blur", () => addressUpdate(userProfileUrl));
-    </script>
     <script src="/static/js/addressUpdate.js"></script>
 {% endblock script %}

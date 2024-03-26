@@ -9,8 +9,37 @@
 
 {% block content %}
   {# Tools: Search | Sort | # of Order by Page #}
-  {# Paginator Selector #}
-  <div class="row justify-content-end p-2">
+
+
+
+  <div class="row justify-content-between p-2">
+    {# Order Status Search #}
+    <form method="get" class="col-4">
+      <select id="order-status-select-multiple"
+              class="form-select"
+              name="order_status"
+              data-placeholder="Order Status"
+              multiple>
+        {% for order_status in order_statuses %}
+        	<option value="{{ order_status.0 }}">{{ order_status.1 }}</option>
+        {% endfor %}
+      </select>
+    </form>
+
+    {# Order Type Search #}
+    <form method="get" class="col-4">
+      <select id="order-type-select-multiple"
+              class="form-select"
+              name="order_type"
+              data-placeholder="Order Type"
+              multiple>
+        {% for order_type in order_types %}
+        	<option value="{{ order_type.0 }}">{{ order_type.1 }}</option>
+        {% endfor %}
+      </select>
+    </form>
+
+    {# Paginator Selector #}
     <form method="get" class="form-floating col-2" id="orderListPaginatorForm">
       <select class="form-select" id="orderPerPageSelector"
               name="paginate_by"  {# This is what's passed in the GET request #}
@@ -137,6 +166,7 @@
 {% endblock content %}
 
 {% block script %}
+  {# Image Model Handling #}
   <script>
       // Get the modal and image elements
       let modal = document.getElementById("imageModal");
@@ -169,5 +199,5 @@
       };
   </script>
   <script src="/static/js/orderTrackingStatusBgColor.js"></script>
-  <script src="/static/js/orderTrackingPaginatorAutoSubmit.js"></script>
+  <script src="/js/orderTrackingTools.js"></script>
 {% endblock script %}

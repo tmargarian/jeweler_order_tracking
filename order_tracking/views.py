@@ -36,6 +36,9 @@ class OrderListView(
         context["pagination_options"] = UserPreferences.PAGINATION_OPTIONS
         context["user_pagination_setting"] = user_preferences.orders_per_page
 
+        context["order_statuses"] = Order.ORDER_STATUS_CHOICES
+        context["order_types"] = Order.ORDER_TYPE_CHOICES
+
         return context
 
     def get_paginate_by(self, queryset):
@@ -65,6 +68,19 @@ class OrderListView(
                 .filter(company=self.request.user.company)  # only orders of the user's company
                 .filter(deleted_flag=False)  # accounting for soft-deleted orders
         )
+
+        # Order Status filter handling
+        order_statuses = self.request.GET.getlist("order_status", None)
+
+        if order_statuses:
+            queryset = queryset.filter(order_status__in=order_statuses)
+
+        # Order Types filter handling
+        order_types = self.request.GET.getlist("order_type", None)
+
+        if order_types:
+            queryset = queryset.filter(order_type__in=order_types)
+
         return queryset
 
 

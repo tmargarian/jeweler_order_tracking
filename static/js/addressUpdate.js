@@ -1,3 +1,7 @@
+document
+    .getElementById('id_1-zip_code')
+    .addEventListener("blur", () => addressUpdate(""));
+
 function addressUpdate(url) {
     const zipCode = document
         .getElementById('id_1-zip_code')
