@@ -14,7 +14,7 @@
 
   <div class="row justify-content-between p-2">
     {# Order Status Search #}
-    <form method="get" class="col-4">
+    <div class="col-5">
       <select id="order-status-select-multiple"
               class="form-select"
               name="order_status"
@@ -24,10 +24,10 @@
         	<option value="{{ order_status.0 }}">{{ order_status.1 }}</option>
         {% endfor %}
       </select>
-    </form>
+    </div>
 
     {# Order Type Search #}
-    <form method="get" class="col-4">
+    <div class="col-5">
       <select id="order-type-select-multiple"
               class="form-select"
               name="order_type"
@@ -37,27 +37,24 @@
         	<option value="{{ order_type.0 }}">{{ order_type.1 }}</option>
         {% endfor %}
       </select>
-    </form>
+    </div>
 
     {# Paginator Selector #}
-    <form method="get" class="form-floating col-2" id="orderListPaginatorForm">
-      <select class="form-select" id="orderPerPageSelector"
-              name="paginate_by"  {# This is what's passed in the GET request #}
-              aria-label="Orders per Page Selector">
-      {% for page_option in pagination_options %}
-      	<option value="{{ page_option.0 }}"
-                {% if request.GET.paginate_by == page_option.0|stringformat:"s" %}
-                	selected
-                {% elif not request.GET.paginate_by and page_option.0 == user_pagination_setting %}
-                  selected
-                {% endif %} >
-          {{ page_option.1 }}
-        </option>
-      {% endfor %}
-
+    <div class="form-floating col-2">
+      <select class="form-select" id="orderPerPageSelector" name="paginate_by" aria-label="Orders per Page Selector">
+        {% for page_option in pagination_options %}
+          <option value="{{ page_option.0 }}"
+                  {% if request.GET.paginate_by == page_option.0|stringformat:"s" %}
+                    selected
+                  {% elif not request.GET.paginate_by and page_option.0 == user_pagination_setting %}
+                    selected
+                  {% endif %} >
+            {{ page_option.1 }}
+          </option>
+        {% endfor %}
       </select>
       <label for="orderPerPageSelector">Orders per Page</label>
-    </form>
+    </div>
   </div>
 
   {# Order Table #}
