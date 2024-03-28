@@ -1,55 +1,52 @@
-/* Enable Select2 Boxes */
-function updateURLParameter(paramName, newValues) {
-    // Remove the parameter if it exists
-    params.delete(paramName);
+// Function to initialize Select2 and set up change listeners
+const initializeSelect2AndListeners = () => {
+    const selectElements = [
+        {selector: '#order-status-select-multiple', paramName: 'order_status'},
+        {selector: '#order-type-select-multiple', paramName: 'order_type'},
+        {selector: '#client-select-multiple', paramName: 'client'}
+        // Add more selectors and parameter names as needed
+    ];
 
-    // Add new values for the parameter
-    newValues.forEach(value => params.append(paramName, value));
+    selectElements.forEach(({selector, paramName}) => {
+        const $select = $(selector).select2(); // Initialize Select2
 
-    // Reset pagination
-    params.delete('page');
+        // Set initial value from URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const values = params.getAll(paramName);
+        if (values) {
+            $select.val(values).trigger('change');
+        }
 
-    // Construct the new URL
-    return `${window.location.pathname}?${params.toString()}`;
-}
-
-$(document).ready(function() {
-        $('#order-status-select-multiple').select2();
-        $('#order-type-select-multiple').select2();
+        // Update URL on change
+        $select.on('change', () => {
+            const selectedValues = $select.val() || [];
+            const newUrl = updateURLParameter(paramName, selectedValues);
+            window.location.href = newUrl;
+        });
     });
+};
 
-// Get all order statuses and types from GET
-const params = new URLSearchParams(window.location.search);
-const orderStatuses = params.getAll('order_status');
-const orderTypes = params.getAll('order_type');
+// Function to update URL parameters
+const updateURLParameter = (paramName, newValues) => {
+    // Clone 'params' to avoid modifying the global state
+    const updatedParams = new URLSearchParams(window.location.search);
+    updatedParams.delete(paramName)
+    newValues.forEach(value => updatedParams.append(paramName, value));
+    updatedParams.delete('page'); // Reset pagination
+    return `${window.location.pathname}?${updatedParams.toString()}`;
+};
 
-// If there are order statuses or types in GET -> update elements
-if (orderStatuses) {
-    $('#order-status-select-multiple').val(orderStatuses).trigger('change');
-}
 
-if (orderTypes) {
-    $('#order-type-select-multiple').val(orderTypes).trigger('change');
-}
+// Document ready
+$(document).ready(() => {
+    initializeSelect2AndListeners();
 
-// On change of the element - update URL parameter instead of form submission
-$('#order-status-select-multiple').on('change', function() {
-    const selectedStatuses = $(this).val() || [];
-    const newUrl = updateURLParameter('order_status', selectedStatuses);
-    window.location.href = newUrl; // Navigate to the new URL
-});
+    // paginate_by element selector
+    const select = document.getElementById("orderPerPageSelector");
 
-$('#order-type-select-multiple').on('change', function() {
-    const selectedTypes = $(this).val() || [];
-    const newUrl = updateURLParameter('order_type', selectedTypes);
-    window.location.href = newUrl; // Navigate to the new URL
-});
-
-// paginate_by element selector
-const select = document.getElementById("orderPerPageSelector");
-
-// Add an event listener for the change event on the select element
-select.addEventListener("change", function() {
-  const newUrl = updateURLParameter('paginate_by', [select.value]);
-  window.location.href = newUrl;
+    // Add an event listener for the change event on the select element
+    select.addEventListener("change", function() {
+      const newUrl = updateURLParameter('paginate_by', [select.value]);
+      window.location.href = newUrl;
+    });
 });

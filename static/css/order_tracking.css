@@ -7,9 +7,14 @@
     padding-bottom: 2px;
 }
 
- .form-floating>label {
-     left: auto;
- }
+.form-floating>label {
+    left: auto;
+}
+
+.select2-container .select2-search--dropdown .select2-search__field {
+    height: 40px; /* Adjust the height as needed */
+    font-size: 16px; /* Optional: Adjust the font size for better readability */
+}
 
 a {
     text-decoration: none;

@@ -9,12 +9,26 @@
 
 {% block content %}
   {# Tools: Search | Sort | # of Order by Page #}
-
-
-
   <div class="row justify-content-between p-2">
-    {# Order Status Search #}
-    <div class="col-5">
+    {# Client Search #}
+    <div class="col-auto">
+      <select id="client-select-multiple"
+              class="form-select"
+              name="client"
+              data-placeholder="Client Details (Name | Tel | Email)"
+              multiple>
+        {% for client in clients %}
+        	<option value="{{ client.id }}">
+            {{ client.first_name }} {{ client.last_name }}
+            {% if client.phone_number %} | {{ client.phone_number }}  {% endif %}
+            {% if client.email %} | {{ client.email }} {% endif %}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+  
+   {# Order Status Search #}
+    <div class="col-3">
       <select id="order-status-select-multiple"
               class="form-select"
               name="order_status"
@@ -27,7 +41,7 @@
     </div>
 
     {# Order Type Search #}
-    <div class="col-5">
+    <div class="col-3">
       <select id="order-type-select-multiple"
               class="form-select"
               name="order_type"
