@@ -171,6 +171,21 @@ class OrderCreateForm(forms.ModelForm):
                 "Security deposit cannot be greater than quoted price",
             )
 
+        if quoted_price < 0:
+            self.add_error(
+                "quoted_price", "Quoted price cannot be negative"
+            )
+
+        if estimated_cost < 0:
+            self.add_error(
+                "estimated_cost", "Estimated cost cannot be negative"
+            )
+
+        if security_deposit < 0:
+            self.add_error(
+                "security_deposit", "Security deposit cannot be negative"
+            )
+
         if order_photo and order_photo.size > (6 * 1024 * 1024):  # 6 MB
             self.add_error("order_photo", "File size should not exceed 6 MB.")
 
@@ -238,6 +253,21 @@ class OrderUpdateForm(forms.ModelForm):
             self.add_error(
                 "security_deposit",
                 "Security deposit cannot be greater than quoted price",
+            )
+
+        if quoted_price < 0:
+            self.add_error(
+                "quoted_price", "Quoted price cannot be negative"
+            )
+
+        if estimated_cost < 0:
+            self.add_error(
+                "estimated_cost", "Estimated cost cannot be negative"
+            )
+
+        if security_deposit < 0:
+            self.add_error(
+                "security_deposit", "Security deposit cannot be negative"
             )
 
         if order_photo and order_photo.size > (6 * 1024 * 1024):  # 6 MB

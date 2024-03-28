@@ -30,7 +30,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "1c39-2601-647-4d7f-3290-95eb-d224-c878-7c2a.ngrok-free.app"
+    "0247-2601-647-4d7f-3290-1019-e886-7f14-5559.ngrok-free.app",
+    "bd1e-2603-8001-91f0-7f80-5dd-2249-b0b-9de9.ngrok-free.app"
 ]
 
 # Application definition
@@ -194,8 +195,8 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Stripe configuration parameters
 # Test Keys
-STRIPE_TEST_PUBLIC_KEY = env("STRIPE_TEST_PUBLIC_KEY")
-STRIPE_TEST_SECRET_KEY = env("STRIPE_TEST_SECRET_KEY")
+# STRIPE_TEST_PUBLIC_KEY = env("STRIPE_TEST_PUBLIC_KEY")
+# STRIPE_TEST_SECRET_KEY = env("STRIPE_TEST_SECRET_KEY")
 
 # Live Keys
 # STRIPE_LIVE_PUBLIC_KEY = env("STRIPE_LIVE_PUBLIC_KEY")
