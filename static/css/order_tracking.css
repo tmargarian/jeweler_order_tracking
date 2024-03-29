@@ -7,10 +7,24 @@
     padding-bottom: 2px;
 }
 
- .form-floating>label {
-     left: auto;
- }
+.form-floating>label {
+    left: auto;
+}
+
+.select2.select2-container {
+    width: 100% !important;
+}
+
+.select2-search__field {
+    height: 25px !important;
+    vertical-align: center !important;
+    padding-top: 1px !important;
+}
 
 a {
     text-decoration: none;
 }
+/*<<<<<<< HEAD*/
+/*=======*/
+
+/*>>>>>>> 42c7205f0cf1712e3740f34ed3b282560b4debe2*/

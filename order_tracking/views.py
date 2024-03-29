@@ -4,6 +4,7 @@ from django.urls import reverse_lazy
 from django.db.models import Sum, Case, When, DecimalField, F
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView
 from django.http import JsonResponse
+from django.template.loader import render_to_string
 
 from .mixins import CompleteProfileAndActiveSubscriptionMixin
 from .forms import OrderCreateForm, OrderUpdateForm, ClientUpdateForm
@@ -38,6 +39,8 @@ class OrderListView(
 
         context["order_statuses"] = Order.ORDER_STATUS_CHOICES
         context["order_types"] = Order.ORDER_TYPE_CHOICES
+
+        context["clients"] = Client.objects.filter(user_id=self.request.user.id)
 
         return context
 
@@ -81,8 +84,19 @@ class OrderListView(
         if order_types:
             queryset = queryset.filter(order_type__in=order_types)
 
+        # Clients
+        clients = self.request.GET.getlist("client", None)
+        if clients:
+            queryset = queryset.filter(client_id__in=clients)
+
         return queryset
 
+    def get(self, request, *args, **kwargs):
+        is_ajax = request.headers.get('X-Requested-With') == "XMLHttpRequest"
+        if is_ajax:
+            pass
+        else:
+            return super().get(request, *args, **kwargs)
 
 class OrderCreateView(
     LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, CreateView
