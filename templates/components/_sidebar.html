@@ -10,7 +10,7 @@
         <li>
             <a href="{% url 'order_tracking:order_list' %}"
                class="d-flex align-items-center nav-link
-                   {% if 'order' in request.build_absolute_uri %}
+                   {% if 'app/order_' in request.build_absolute_uri %}
                       bg-white text-dark
                    {% else %}
                       bg-dark text-white
@@ -25,7 +25,7 @@
         <li>
             <a href="{% url 'order_tracking:client_list' %}"
                class="d-flex align-items-center nav-link
-                     {% if 'client' in request.build_absolute_uri %}
+                     {% if 'app/client' in request.build_absolute_uri %}
                         bg-white text-dark
                      {% else %}
                         bg-dark text-white

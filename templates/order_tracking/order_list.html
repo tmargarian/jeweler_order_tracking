@@ -9,11 +9,10 @@
 
 {% block content %}
   {# Tools: Search | Sort | # of Order by Page #}
-  <div class="row justify-content-between p-2">
+  <div class="row g-3 p-2 align-items-center">
     {# Client Search #}
-    <div class="col-auto">
+    <div class="col-md-5">
       <select id="client-select-multiple"
-              class="form-select"
               name="client"
               data-placeholder="Client Details (Name | Tel | Email)"
               multiple>
@@ -28,9 +27,8 @@
     </div>
   
    {# Order Status Search #}
-    <div class="col-3">
+    <div class="col-md">
       <select id="order-status-select-multiple"
-              class="form-select"
               name="order_status"
               data-placeholder="Order Status"
               multiple>
@@ -41,9 +39,8 @@
     </div>
 
     {# Order Type Search #}
-    <div class="col-3">
+    <div class="col-md">
       <select id="order-type-select-multiple"
-              class="form-select"
               name="order_type"
               data-placeholder="Order Type"
               multiple>
@@ -54,7 +51,7 @@
     </div>
 
     {# Paginator Selector #}
-    <div class="form-floating col-2">
+    <div class="form-floating col-md-2">
       <select class="form-select" id="orderPerPageSelector" name="paginate_by" aria-label="Orders per Page Selector">
         {% for page_option in pagination_options %}
           <option value="{{ page_option.0 }}"
@@ -67,7 +64,7 @@
           </option>
         {% endfor %}
       </select>
-      <label for="orderPerPageSelector">Orders per Page</label>
+      <label for="orderPerPageSelector">Orders / Page</label>
     </div>
   </div>
 

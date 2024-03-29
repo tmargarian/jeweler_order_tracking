@@ -11,11 +11,17 @@
     left: auto;
 }
 
-.select2-container .select2-search--dropdown .select2-search__field {
-    height: 40px; /* Adjust the height as needed */
-    font-size: 16px; /* Optional: Adjust the font size for better readability */
+.select2.select2-container {
+    width: 100% !important;
+}
+
+.select2-search__field {
+    height: 25px !important;
+    vertical-align: center !important;
+    padding-top: 1px !important;
 }
 
 a {
     text-decoration: none;
 }
+

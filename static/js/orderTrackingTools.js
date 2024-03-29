@@ -8,7 +8,7 @@ const initializeSelect2AndListeners = () => {
     ];
 
     selectElements.forEach(({selector, paramName}) => {
-        const $select = $(selector).select2(); // Initialize Select2
+        const $select = $(selector).select2({theme: "bootstrap-5"}); // Initialize Select2
 
         // Set initial value from URL parameters
         const params = new URLSearchParams(window.location.search);
