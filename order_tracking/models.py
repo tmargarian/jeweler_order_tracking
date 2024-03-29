@@ -1,4 +1,5 @@
 import uuid
+import os
 from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
@@ -49,21 +50,42 @@ class Order(models.Model):
         super().save(*args, **kwargs)  # Save the model instance and the file initially
 
         if self.order_photo:  # Check if an image has been uploaded
-            img = Image.open(self.order_photo)
-            target_size = 300 * 1024  # Target size in bytes
+            img = Image.open(self.order_photo.path)
+            target_size = 300 * 1024  # Target size in bytes 300 KB
 
-            # Compression logic (simplified for demonstration)
-            quality = 90  # Starting quality
-            img_io = BytesIO()
-            while img_io.tell() < target_size and quality > 0:
-                img_io = BytesIO()  # Reset buffer
-                img.save(img_io, format="JPEG", quality=quality)
-                quality -= 10  # Decrease quality for the next iteration if needed
+            format = img.format # Get the image format (e.g., JPEG, PNG)
 
-            # Save the compressed image back to the FileField
-            self.order_photo.save(
-                self.order_photo.name, ContentFile(img_io.getvalue()), save=False
-            )
+            img_io = BytesIO()  # Create a BytesIO buffer for image compression
+
+            # Define initial and final quality settings
+            initial_quality = 91  # Set it to a high value to allow more aggressive quality reduction
+            final_quality = 10
+
+            while True:
+                img_io.truncate(0)  # Clear the buffer
+                img_io.seek(0)  # Reset the position to write new data from the beginning
+
+                # Attempt to compress the image with the current quality
+                img.save(img_io, format=format, quality=initial_quality)
+
+                # Check the size of the compressed image
+                current_size = img_io.tell()
+
+                if current_size <= target_size or initial_quality <= final_quality:
+                    # If the size is below the target or the quality can't be reduced further, exit the loop
+                    break
+
+                # Reduce the image quality
+                initial_quality -= 10  # Reduce by 1 (fine-grained control)
+
+            # Save the compressed image to a temporary location
+            temp_path = self.order_photo.path + '_temp'
+            with open(temp_path, 'wb') as f:
+                f.write(img_io.getvalue())
+
+            # Replace the original image with the compressed image
+            os.remove(self.order_photo.path)
+            os.rename(temp_path, self.order_photo.path)
 
         super().save(*args, **kwargs)
 

@@ -1,0 +1,40 @@
+.rounded-image {
+  border-radius: 100%; /* Makes the image round */
+  width: 50px; /* Adjust the width as needed */
+  height: 50px; /* Adjust the height as needed */
+  object-fit: cover; /* Scales the image to cover the entire container */
+}
+
+/* Styles for the pop-up image container */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding: 50px 0; /* Adjust the padding to control the vertical position */
+  left: 0;
+  top: 0;
+  width: 100%; /* Adjust the width as needed */
+  height: 100%; /* Adjust the height as needed */
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+/* Styles for the modal image */
+.modal-content {
+  margin: auto;
+  display: block;
+  max-width: 500px; /* Adjust the maximum width as needed */
+  max-height: 500px; /* Adjust the maximum height as needed */
+}
+
+/* Styles for the close button */
+.close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+  cursor: pointer;
+}

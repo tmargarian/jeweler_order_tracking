@@ -33,7 +33,7 @@ class OrderCreateForm(forms.ModelForm):
     phone_number = PhoneNumberField(
         label="Client Phone Number",
         region="US",
-        required=True,
+        required=False,
         initial=None,
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
