@@ -52,7 +52,7 @@
     </div>
 
     {# Paginator Selector #}
-    <div class="form-floating col-md-2">
+    <div class="form-floating col-md-2" style="position: relative; z-index: 0;">
       <select class="form-select" id="orderPerPageSelector" name="paginate_by" aria-label="Orders per Page Selector">
         {% for page_option in pagination_options %}
           <option value="{{ page_option.0 }}"
@@ -139,7 +139,7 @@
 
   {# Pagination #}
   {% if page_obj %} {# Don't show the paginator is Show All is selected #}
-    <nav aria-label="Page Navigation">
+    <nav aria-label="Page Navigation" style="position: relative; z-index: 0;">
       <ul class="pagination justify-content-center">
         <li class="page-item {% if not page_obj.has_previous %} disabled {% endif %} ">
           <a class="page-link" href="{% if page_obj.has_previous %} {% query_transform page=page_obj.previous_page_number %} {% endif %}">
