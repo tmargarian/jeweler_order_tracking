@@ -226,7 +226,36 @@ class OrderUpdateForm(forms.ModelForm):
             )
 
         self.helper = FormHelper()
-        self.helper.form_tag = False
+        self.helper.form_class = "g-3"
+        self.helper.layout = Layout(
+            HTML("""<h1 class="display-4">Client Fields</h1>"""),
+            Row(
+                Column("client", css_class="col-md-6"),
+            ),
+            HTML("""<h1 class="display-4">Order Fields</h1>"""),
+            Row(
+                Column("order_type", css_class="col-md-6"),
+                Column("order_status", css_class="col-md-6"),
+                Column("order_date", css_class="col-md-6"),
+                Column("order_due_date", css_class="col-md-6"),
+                Column(
+                    PrependedAppendedText("estimated_cost", "$"),
+                    css_class="col-md-4",
+                ),
+                Column(
+                    PrependedAppendedText("quoted_price", "$"),
+                    css_class="col-md-4",
+                ),
+                Column(
+                    PrependedAppendedText("security_deposit", "$"),
+                    css_class="col-md-4",
+                ),
+                Column("order_photo", css_class="col-md-12"),
+                Column("content", css_class="col-md-12"),
+            ),
+            Submit("submit", value="Submit", css_class="btn btn-primary col-md-6"),
+        )
+
 
     def clean(self):
         cleaned_data = super().clean()
@@ -291,9 +320,9 @@ class ClientUpdateForm(forms.ModelForm):
         initial=None,
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
-    phone_number = forms.CharField(
+    phone_number = PhoneNumberField(
         label="Client Phone Number",
-        max_length=20,
+        region="US",
         required=False,
         initial=None,
         widget=forms.TextInput(attrs={"class": "form-control"}),
@@ -303,7 +332,9 @@ class ClientUpdateForm(forms.ModelForm):
         max_length=254,
         required=False,
         initial=None,
-        widget=forms.EmailInput(attrs={"class": "form-control"}),
+        widget=forms.EmailInput(
+            attrs={"class": "form-control", "placeholder": "example@company.com"}
+        ),
     )
 
     class Meta:
@@ -319,7 +350,17 @@ class ClientUpdateForm(forms.ModelForm):
         self.user = kwargs.pop("user", None)
         super(ClientUpdateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_tag = False
+        self.helper.form_class = "g-3"
+        self.helper.layout = Layout(
+            HTML(""""""),
+            Column(
+                Column("first_name", css_class="col-md-3"),
+                Column("last_name", css_class="col-md-3"),
+                Column("phone_number", css_class="col-md-3"),
+                Column("email", css_class="col-md-3"),
+            ),
+            Submit("submit", value="Submit", css_class="btn btn-primary col-md-3"),
+        )
 
     def clean(self):
         cleaned_data = super().clean()
