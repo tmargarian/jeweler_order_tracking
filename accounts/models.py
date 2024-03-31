@@ -71,6 +71,7 @@ class Company(models.Model):
     )
     customer = models.ForeignKey(
         "djstripe.Customer",
+        to_field="id",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
