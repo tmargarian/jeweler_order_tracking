@@ -122,7 +122,7 @@ class OrderCreateView(
                 {
                     "first_name": client.first_name,
                     "last_name": client.last_name,
-                    "phone_number": client.phone_number,
+                    "phone_number": str(client.phone_number),
                     "email": client.email,
                 }
             )
