@@ -14,11 +14,10 @@
                 {% crispy form %}
             </div>
             <p></p>
-            <button type="button" id="add-note-button" class="btn btn-primary custom-add-note-button">Add Note</button>
+            <button type="button" id="add-note-button" class="btn btn-primary col-md-3">Add Note</button>
             <p></p>
             <div class="col-md-4">
                 <div class="order-notes text-center">
-                    <label>Notes Log</label>
                     <ul class="order-note-list">
                         {% for note in notes %}
                             <li>
@@ -174,19 +173,6 @@
                      padding-right: 10px;
                      width: 50%;
                      text-align: right;
-                }
-
-                .custom-add-note-button {
-                    background-color: #007bff; /* Change the button's background color */
-                    color: #fff; /* Change the text color to white */
-                    border: none; /* Remove the default button border */
-                    border-radius: 5px; /* Add rounded corners */
-                    padding: 10px 20px; /* Adjust padding for better button sizing */
-                    cursor: pointer; /* Add a pointer cursor on hover */
-                }
-
-                .custom-add-note-button:hover {
-                    background-color: #0056b3; /* Change the background color on hover */
                 }
 
                 .note-delete {

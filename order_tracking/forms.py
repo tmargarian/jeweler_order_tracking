@@ -96,7 +96,7 @@ class OrderCreateForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_class = "g-3"
         self.helper.layout = Layout(
-            HTML("""<h1 class="display-4">Client Fields</h1>"""),
+            HTML("""<h1 class="display-6">Client Fields</h1>"""),
             Row(
                 Column("client_already_exists", css_class="col-md-6"),
                 Column("client", css_class="col-md-6"),
@@ -105,7 +105,7 @@ class OrderCreateForm(forms.ModelForm):
                 Column("phone_number", css_class="col-md-6"),
                 Column("email", css_class="col-md-6"),
             ),
-            HTML("""<h1 class="display-4">Order Fields</h1>"""),
+            HTML("""<h1 class="display-6">Order Fields</h1>"""),
             Row(
                 Column("order_type", css_class="col-md-6"),
                 Column("order_status", css_class="col-md-6"),
@@ -194,7 +194,7 @@ class OrderCreateForm(forms.ModelForm):
 
 class OrderUpdateForm(forms.ModelForm):
     content = forms.CharField(
-        label="Add Note", widget=forms.Textarea(attrs={"rows": 2}), required=False
+        label=" ", widget=forms.Textarea(attrs={"rows": 2, "placeholder": "Write note here"})
     )
 
     class Meta:
@@ -228,11 +228,11 @@ class OrderUpdateForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_class = "g-3"
         self.helper.layout = Layout(
-            HTML("""<h1 class="display-4">Client Fields</h1>"""),
+            HTML("""<h1 class="display-6">Client Fields</h1>"""),
             Row(
                 Column("client", css_class="col-md-6"),
             ),
-            HTML("""<h1 class="display-4">Order Fields</h1>"""),
+            HTML("""<h1 class="display-6">Order Fields</h1>"""),
             Row(
                 Column("order_type", css_class="col-md-6"),
                 Column("order_status", css_class="col-md-6"),
@@ -251,11 +251,10 @@ class OrderUpdateForm(forms.ModelForm):
                     css_class="col-md-4",
                 ),
                 Column("order_photo", css_class="col-md-12"),
-                Column("content", css_class="col-md-12"),
             ),
-            Submit("submit", value="Submit", css_class="btn btn-primary col-md-6"),
+            Submit("submit", value="Submit", css_class="btn btn-primary col-md-3"),
+            Column("content", css_class="col-md-4"),
         )
-
 
     def clean(self):
         cleaned_data = super().clean()
@@ -352,7 +351,7 @@ class ClientUpdateForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_class = "g-3"
         self.helper.layout = Layout(
-            HTML(""""""),
+            HTML("""<h1 class="display-6">Update Client</h1>"""),
             Column(
                 Column("first_name", css_class="col-md-3"),
                 Column("last_name", css_class="col-md-3"),
