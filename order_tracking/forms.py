@@ -354,10 +354,10 @@ class ClientUpdateForm(forms.ModelForm):
         self.helper.layout = Layout(
             HTML("""<h1 class="display-6">Update Client</h1>"""),
             Column(
-                Column("first_name", css_class="col-md-9"),
-                Column("last_name", css_class="col-md-9"),
-                Column("phone_number", css_class="col-md-9"),
-                Column("email", css_class="col-md-9"),
+                Column("first_name", css_class="col-md-10"),
+                Column("last_name", css_class="col-md-10"),
+                Column("phone_number", css_class="col-md-10"),
+                Column("email", css_class="col-md-10"),
             ),
             Submit("submit", value="Submit", css_class="btn btn-primary col-md-6"),
         )

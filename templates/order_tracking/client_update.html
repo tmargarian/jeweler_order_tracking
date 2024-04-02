@@ -9,10 +9,8 @@
 {% block content %}
     <div class="container d-flex align-self-center justify-content-center">
         <form method="post" enctype="multipart/form-data">
-            <div class="align-center">
-                {% csrf_token %}
-                {% crispy form %}
-            </div>
+            {% csrf_token %}
+            {% crispy form %}
         </form>
     </div>
 {% endblock content %}
