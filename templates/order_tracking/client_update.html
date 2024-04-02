@@ -7,10 +7,12 @@
 {% endblock title %}
 
 {% block content %}
-    <div class="container" style="height: 100vh; overflow-y: scroll;">
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% crispy form %}
+    <div class="container d-flex align-self-center justify-content-center">
+        <form method="post" enctype="multipart/form-data">
+            <div class="align-center">
+                {% csrf_token %}
+                {% crispy form %}
+            </div>
         </form>
     </div>
 {% endblock content %}

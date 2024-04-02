@@ -194,7 +194,8 @@ class OrderCreateForm(forms.ModelForm):
 
 class OrderUpdateForm(forms.ModelForm):
     content = forms.CharField(
-        label=" ", widget=forms.Textarea(attrs={"rows": 2, "placeholder": "Write note here"})
+        label=" ", widget=forms.Textarea(attrs={"rows": 2, "placeholder": "Write note here"}),
+        required=False
     )
 
     class Meta:
@@ -353,12 +354,12 @@ class ClientUpdateForm(forms.ModelForm):
         self.helper.layout = Layout(
             HTML("""<h1 class="display-6">Update Client</h1>"""),
             Column(
-                Column("first_name", css_class="col-md-3"),
-                Column("last_name", css_class="col-md-3"),
-                Column("phone_number", css_class="col-md-3"),
-                Column("email", css_class="col-md-3"),
+                Column("first_name", css_class="col-md-9"),
+                Column("last_name", css_class="col-md-9"),
+                Column("phone_number", css_class="col-md-9"),
+                Column("email", css_class="col-md-9"),
             ),
-            Submit("submit", value="Submit", css_class="btn btn-primary col-md-3"),
+            Submit("submit", value="Submit", css_class="btn btn-primary col-md-6"),
         )
 
     def clean(self):
