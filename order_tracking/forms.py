@@ -195,7 +195,7 @@ class OrderCreateForm(forms.ModelForm):
 class OrderUpdateForm(forms.ModelForm):
     content = forms.CharField(
         label=" ",
-        widget=forms.Textarea(attrs={"rows": 2, "placeholder": "Write note here"}),
+        widget=forms.Textarea(attrs={"rows": 2, "placeholder": "Add notes here"}),
         required=False
     )
 

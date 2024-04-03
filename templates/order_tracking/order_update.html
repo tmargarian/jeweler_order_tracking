@@ -14,22 +14,20 @@
   <div class="col-lg-7 mx-auto">
     {% crispy form %}
     <button type="button" id="add-note-button" class="btn btn-primary col-md-3 mb-4">Add Note</button>
-    <div class="col-lg-8">
-      <div class="order-notes text-center">
-        <ul class="order-note-list">
-          {% for note in notes %}
-            <li>
-              <div class="content">{{ note.content }}</div>
-              <div class="timestamp">{{ note.timestamp }}</div>
-              <button class="note_delete"
-                      data-note-id="{{ note.id }}"
-                      data-delete-url="{% url 'order_tracking:note_delete' note.id %}">
-                X
-              </button>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
+    <div class="col-lg-8 order-notes text-center">
+      <ul class="order-note-list">
+        {% for note in notes %}
+          <li>
+            <div class="note-content">{{ note.content }}</div>
+            <div class="note-timestamp">{{ note.timestamp }}</div>
+            <button class="note-delete"
+                    data-note-id="{{ note.id }}"
+                    data-delete-url="{% url 'order_tracking:note_delete' note.id %}">
+              X
+            </button>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
   </div>
 {% endblock content %}
@@ -38,7 +36,6 @@
 {% block script %}
   <script>
     const noteUpdateUrl = "{% url "order_tracking:note_update" pk=object.pk %}";
-    const noteDeleteUrl = "{% url 'order_tracking:note_delete' 0 %}";
   </script>
   <script src="/static/js/orderNotesLog.js"></script>
 {% endblock script %}
