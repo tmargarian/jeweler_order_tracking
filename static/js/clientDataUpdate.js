@@ -1,17 +1,19 @@
-        // Get the checkbox and the fields to be disabled
-        let clientExistsSelector = document.querySelector('#id_client_already_exists');
-        let clientSelector = document.querySelector('#id_client');
-
-        let clientFields = [
-            document.querySelector('#id_first_name'),
-            document.querySelector('#id_last_name'),
-            document.querySelector('#id_email'),
-            document.querySelector('#id_phone_number'),
-        ];
 
 
         // Function to toggle the disabled attribute on fields
         function toggleFieldsDisabled() {
+            // Get the checkbox and the fields to be disabled
+            let clientExistsSelector = document.querySelector('#id_client_already_exists');
+            let clientSelector = document.querySelector('#id_client');
+
+            let clientFields = [
+                document.querySelector('#id_first_name'),
+                document.querySelector('#id_last_name'),
+                document.querySelector('#id_email'),
+                document.querySelector('#id_phone_number'),
+            ];
+
+
             let isClientExists = clientExistsSelector.value === 'True';
 
             // {# Disabling/Enabling Client Fields (Name/Phone/Email) #}
@@ -26,9 +28,20 @@
                     field.value = '';
                 });
             }
+            console.log("toggled fields disabled");
+
         }
 
         function populateClientFields(url) {
+            let clientSelector = document.querySelector('#id_client');
+
+            let clientFields = [
+                document.querySelector('#id_first_name'),
+                document.querySelector('#id_last_name'),
+                document.querySelector('#id_email'),
+                document.querySelector('#id_phone_number'),
+            ];
+
             if (clientSelector.value === '') {
                 // {# If we set to empty client - clean the fields #}
                 clientFields.forEach(field => {field.value = '';});
@@ -49,3 +62,14 @@
                     })
             }
         }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initially set the field states and add an event listener
+            toggleFieldsDisabled();
+            let clientExistsSelector = document.querySelector('#id_client_already_exists');
+            clientExistsSelector.addEventListener('change', toggleFieldsDisabled);
+
+            let clientSelector = document.querySelector('#id_client');
+            clientSelector.addEventListener('change', () => populateClientFields(createOrderUrl));
+        })

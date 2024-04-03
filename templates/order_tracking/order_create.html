@@ -9,13 +9,8 @@
 {% endblock content %}
 
 {% block script %}
-    <script src="/static/js/clientDataUpdate.js"></script>
     <script>
-        // Initially set the field states and add an event listener
-        toggleFieldsDisabled();
-        clientExistsSelector.addEventListener('change', toggleFieldsDisabled);
-
         const createOrderUrl = "{% url 'order_tracking:order_create' %}";
-        clientSelector.addEventListener('change', () => populateClientFields(createOrderUrl));
     </script>
+    <script src="/static/js/clientDataUpdate.js"></script>
 {% endblock script %}
