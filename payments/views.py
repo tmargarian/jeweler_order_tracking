@@ -76,7 +76,6 @@ class SubscriptionConfirmView(LoginRequiredMixin, TemplateView):
         company_id = int(session.client_reference_id)
         session_company = Company.objects.get(id=company_id)
         current_company = Company.objects.get(owner__user_id=request.user.id)
-        print(session_company.id, current_company.id)
 
         if session_company != current_company:
             print("There was an error with your subscription. Please contact support.")
