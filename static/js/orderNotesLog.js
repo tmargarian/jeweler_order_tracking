@@ -7,7 +7,7 @@ document.getElementById('add-note-button').addEventListener('click', function ()
         formData.append('content', content); // Append the note content to the form data
 
         // Send an AJAX request to add the note
-        fetch('{% url "order_tracking:note_update" pk=object.pk %}', {
+        fetch(noteUpdateUrl, {
             method: "POST",
             body: formData,
             headers: {
@@ -15,31 +15,34 @@ document.getElementById('add-note-button').addEventListener('click', function ()
                 "X-Note-Action": "create",
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Construct the new note element and add it to the list
-                const noteElement = document.createElement('li');
-                noteElement.innerHTML = `
-                    <div class="content">${content}</div>
-                    <div class="timestamp">${data.timestamp}</div>
-                    <button class="note-delete" data-note-id="${data.note_id}" data-delete-url="{% url 'order_tracking:note_delete' 0 %}">X</button>
-                `;
-                const noteList = document.querySelector('.order-note-list');
-                noteList.appendChild(noteElement);
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Construct the new note element and add it to the list
+                    const noteElement = document.createElement('li');
+                    noteElement.innerHTML = `
+                                    <div class="content">${content}</div>
+                                    <div class="timestamp">${data.timestamp}</div>
+                                    <button class="note-delete" 
+                                            data-note-id="${data.note_id}" 
+                                            data-delete-url="${noteDeleteUrl}">
+                                            X
+                                    </button>`;
+                    const noteList = document.querySelector('.order-note-list');
+                    noteList.appendChild(noteElement);
 
-                // Clear the note content input field
-                document.getElementById('id_content').value = '';
+                    // Clear the note content input field
+                    document.getElementById('id_content').value = '';
 
-                // Reload the page to reflect the note addition
-                location.reload();
-            } else {
-                console.error("Error adding note:", data.error);
-            }
-        })
-        .catch(error => {
-            console.error("Error adding note:", error);
-        });
+                    // Reload the page to reflect the note addition
+                    location.reload();
+                } else {
+                    console.error("Error adding note:", data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error adding note:", error);
+            });
     }
 });
 
@@ -49,25 +52,25 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function (event) { // Add 'event' as a parameter
             event.preventDefault(); // Prevent the default form submission
 
-                const noteId = button.getAttribute('data-note-id');
-                const deleteUrl = button.getAttribute('data-delete-url');
+            const noteId = button.getAttribute('data-note-id');
+            const deleteUrl = button.getAttribute('data-delete-url');
 
-                // Create a new FormData object
-                const formData = new FormData();
-                formData.append('note_id', noteId); // Append the note_id to the form data
+            // Create a new FormData object
+            const formData = new FormData();
+            formData.append('note_id', noteId); // Append the note_id to the form data
 
-                // Debugging: Log the URL and noteId to the console
-                console.log('Delete URL:', deleteUrl);
-                console.log('Note ID:', noteId);
+            // Debugging: Log the URL and noteId to the console
+            console.log('Delete URL:', deleteUrl);
+            console.log('Note ID:', noteId);
 
-                // Send an AJAX request to delete the note with the note_id
-                fetch(deleteUrl, {
-                    method: "POST",
-                    body: formData, // Send the note_id in the request body
-                    headers: {
-                        "X-CSRFToken": getCookie("csrftoken")
-                    }
-                })
+            // Send an AJAX request to delete the note with the note_id
+            fetch(deleteUrl, {
+                method: "POST",
+                body: formData, // Send the note_id in the request body
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken")
+                }
+            })
                 .then(response => {
                     if (response.ok) {
                         return response.json();

@@ -7,11 +7,7 @@
 {% endblock title %}
 
 {% block content %}
-    <div class="container d-flex align-self-center justify-content-center">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% crispy form %}
-        </form>
-    </div>
+  <div class="col-sm-5 mx-auto">
+    {% crispy form %}
+  </div>
 {% endblock content %}
-```

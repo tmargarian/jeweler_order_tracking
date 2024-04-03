@@ -194,7 +194,8 @@ class OrderCreateForm(forms.ModelForm):
 
 class OrderUpdateForm(forms.ModelForm):
     content = forms.CharField(
-        label=" ", widget=forms.Textarea(attrs={"rows": 2, "placeholder": "Write note here"}),
+        label=" ",
+        widget=forms.Textarea(attrs={"rows": 2, "placeholder": "Write note here"}),
         required=False
     )
 
@@ -254,7 +255,7 @@ class OrderUpdateForm(forms.ModelForm):
                 Column("order_photo", css_class="col-md-12"),
             ),
             Submit("submit", value="Submit", css_class="btn btn-primary col-md-3"),
-            Column("content", css_class="col-md-4"),
+            Column("content", css_class="col-md-12"),
         )
 
     def clean(self):

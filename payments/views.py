@@ -78,6 +78,7 @@ class SubscriptionConfirmView(LoginRequiredMixin, TemplateView):
         current_company = Company.objects.get(owner__user_id=request.user.id)
 
         if session_company != current_company:
+            ## TODO: replace the print with error handling pop-up or something
             print("There was an error with your subscription. Please contact support.")
             return redirect("landing")
 
