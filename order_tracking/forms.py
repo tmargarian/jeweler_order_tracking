@@ -98,35 +98,35 @@ class OrderCreateForm(forms.ModelForm):
         self.helper.layout = Layout(
             HTML("""<h1 class="display-6">Client Fields</h1>"""),
             Row(
-                Column("client_already_exists", css_class="col-md-6"),
-                Column("client", css_class="col-md-6"),
-                Column("first_name", css_class="col-md-6"),
-                Column("last_name", css_class="col-md-6"),
-                Column("phone_number", css_class="col-md-6"),
-                Column("email", css_class="col-md-6"),
+                Column("client_already_exists", css_class="col-lg-6"),
+                Column("client", css_class="col-lg-6"),
+                Column("first_name", css_class="col-lg-6"),
+                Column("last_name", css_class="col-lg-6"),
+                Column("phone_number", css_class="col-lg-6"),
+                Column("email", css_class="col-lg-6"),
             ),
             HTML("""<h1 class="display-6">Order Fields</h1>"""),
             Row(
-                Column("order_type", css_class="col-md-6"),
-                Column("order_status", css_class="col-md-6"),
-                Column("order_date", css_class="col-md-6"),
-                Column("order_due_date", css_class="col-md-6"),
+                Column("order_type", css_class="col-lg-6"),
+                Column("order_status", css_class="col-lg-6"),
+                Column("order_date", css_class="col-lg-6"),
+                Column("order_due_date", css_class="col-lg-6"),
                 Column(
                     PrependedAppendedText("estimated_cost", "$"),
-                    css_class="col-md-4",
+                    css_class="col-lg-4",
                 ),
                 Column(
                     PrependedAppendedText("quoted_price", "$"),
-                    css_class="col-md-4",
+                    css_class="col-lg-4",
                 ),
                 Column(
                     PrependedAppendedText("security_deposit", "$"),
-                    css_class="col-md-4",
+                    css_class="col-lg-4",
                 ),
-                Column("order_photo", css_class="col-md-12"),
-                Column("content", css_class="col-md-12"),
+                Column("order_photo", css_class="col-lg-12"),
+                Column("content", css_class="col-lg-12"),
             ),
-            Submit("submit", value="Submit", css_class="btn btn-primary col-md-6"),
+            Submit("submit", value="Submit", css_class="btn btn-primary col-lg-6"),
         )
 
     def clean(self):
@@ -232,30 +232,30 @@ class OrderUpdateForm(forms.ModelForm):
         self.helper.layout = Layout(
             HTML("""<h1 class="display-6">Client Fields</h1>"""),
             Row(
-                Column("client", css_class="col-md-6"),
+                Column("client", css_class="col-lg-6"),
             ),
             HTML("""<h1 class="display-6">Order Fields</h1>"""),
             Row(
-                Column("order_type", css_class="col-md-6"),
-                Column("order_status", css_class="col-md-6"),
-                Column("order_date", css_class="col-md-6"),
-                Column("order_due_date", css_class="col-md-6"),
+                Column("order_type", css_class="col-lg-6"),
+                Column("order_status", css_class="col-lg-6"),
+                Column("order_date", css_class="col-lg-6"),
+                Column("order_due_date", css_class="col-lg-6"),
                 Column(
                     PrependedAppendedText("estimated_cost", "$"),
-                    css_class="col-md-4",
+                    css_class="col-lg-4",
                 ),
                 Column(
                     PrependedAppendedText("quoted_price", "$"),
-                    css_class="col-md-4",
+                    css_class="col-lg-4",
                 ),
                 Column(
                     PrependedAppendedText("security_deposit", "$"),
-                    css_class="col-md-4",
+                    css_class="col-lg-4",
                 ),
-                Column("order_photo", css_class="col-md-12"),
+                Column("order_photo", css_class="col-lg-8"),
             ),
-            Submit("submit", value="Submit", css_class="btn btn-primary col-md-3"),
-            Column("content", css_class="col-md-12"),
+            Submit("submit", value="Submit", css_class="btn btn-primary col-lg-3"),
+            Column("content", css_class="col-lg-8"),
         )
 
     def clean(self):
@@ -355,12 +355,12 @@ class ClientUpdateForm(forms.ModelForm):
         self.helper.layout = Layout(
             HTML("""<h1 class="display-6">Update Client</h1>"""),
             Column(
-                Column("first_name", css_class="col-md-10"),
-                Column("last_name", css_class="col-md-10"),
-                Column("phone_number", css_class="col-md-10"),
-                Column("email", css_class="col-md-10"),
+                Column("first_name", css_class="col-lg-10"),
+                Column("last_name", css_class="col-lg-10"),
+                Column("phone_number", css_class="col-lg-10"),
+                Column("email", css_class="col-lg-10"),
             ),
-            Submit("submit", value="Submit", css_class="btn btn-primary col-md-6"),
+            Submit("submit", value="Submit", css_class="btn btn-primary col-lg-6"),
         )
 
     def clean(self):

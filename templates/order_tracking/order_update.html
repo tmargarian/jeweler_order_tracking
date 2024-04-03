@@ -11,10 +11,10 @@
 {% endblock title %}
 
 {% block content %}
-  <div class="col-sm-7 mx-auto">
+  <div class="col-lg-7 mx-auto">
     {% crispy form %}
     <button type="button" id="add-note-button" class="btn btn-primary col-md-3 mb-4">Add Note</button>
-    <div class="col-md-12">
+    <div class="col-lg-8">
       <div class="order-notes text-center">
         <ul class="order-note-list">
           {% for note in notes %}
