@@ -126,7 +126,7 @@ class OrderCreateForm(forms.ModelForm):
                 Column("order_photo", css_class="col-lg-12"),
                 Column("content", css_class="col-lg-12"),
             ),
-            Submit("submit", value="Submit", css_class="btn btn-primary col-lg-6"),
+            Submit("submit", value="Submit", css_class="btn btn-primary col-lg-6", css_id="submit-button"),
         )
 
     def clean(self):
