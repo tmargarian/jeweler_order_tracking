@@ -34,9 +34,6 @@ document.getElementById('add-note-button').addEventListener('click', function ()
 
                     // Clear the note content input field
                     document.getElementById('id_content').value = '';
-
-                    // Reload the page to reflect the note addition
-                    // location.reload();
                 } else {
                     console.error("Error adding note:", data.error);
                 }
