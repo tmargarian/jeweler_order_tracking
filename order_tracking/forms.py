@@ -324,7 +324,7 @@ class ClientUpdateForm(forms.ModelForm):
     phone_number = PhoneNumberField(
         label="Client Phone Number",
         region="US",
-        required=False,
+        required=True,
         initial=None,
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
@@ -367,15 +367,11 @@ class ClientUpdateForm(forms.ModelForm):
         cleaned_data = super().clean()
         first_name = cleaned_data.get("first_name")
         last_name = cleaned_data.get("last_name")
-        phone_number = cleaned_data.get("phone_number")
 
         if not first_name:
             self.add_error("first_name", "This field is required.")
 
         if not last_name:
             self.add_error("last_name", "This field is required.")
-
-        if not phone_number:
-            self.add_error("phone_number", "This field is required.")
 
         return cleaned_data
