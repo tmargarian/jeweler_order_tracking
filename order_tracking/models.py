@@ -33,8 +33,8 @@ class Order(models.Model):
     client = models.ForeignKey(
         "Client", on_delete=models.CASCADE, related_name="orders", blank=True, null=True
     )
-    order_date = models.DateField(default=timezone.now)
-    order_due_date = models.DateField(default=timezone.now)
+    order_date = models.DateField(default=False)
+    order_due_date = models.DateField(default=False)
     estimated_cost = models.DecimalField(decimal_places=2, max_digits=10)
     quoted_price = models.DecimalField(decimal_places=2, max_digits=10)
     security_deposit = models.DecimalField(default=0, decimal_places=2, max_digits=10)
