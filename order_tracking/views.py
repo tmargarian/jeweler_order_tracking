@@ -279,7 +279,7 @@ class ClientListView(
             total_spent_column=Sum(
                 Case(
                     When(
-                        orders__order_status__in=["Completed"],
+                        orders__order_status__in=["completed"],
                         orders__deleted_flag=False,
                         then=F("orders__quoted_price"),
                     ),
