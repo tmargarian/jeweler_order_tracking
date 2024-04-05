@@ -20,10 +20,6 @@
             // {# Enabling/Disabling the Client Selector #}
             clientSelector.disabled = !isClientExists;
 
-            clientFields.forEach(field => {
-                console.log(field.value);
-            });
-
             // {# If we set Existing Client? to No -> Set the Client Selector and Data to nothing #}
             if (!isClientExists) {
                 clientSelector.value = '';
@@ -66,6 +62,9 @@
 
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Set initial Client selector to disabled
+            document.querySelector('#id_client').disabled = true;
+
             // Add event listeners
             let clientExistsSelector = document.querySelector('#id_client_already_exists');
             clientExistsSelector.addEventListener('change', toggleFieldsDisabled);

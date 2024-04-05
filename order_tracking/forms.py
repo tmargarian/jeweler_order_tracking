@@ -92,8 +92,6 @@ class OrderCreateForm(forms.ModelForm):
             self.fields["client"].queryset = Client.objects.filter(
                 company=self.user.company, deleted_flag=False
             )
-        # Initially disable the field since Existing client is set to NO
-        self.fields["client"].disabled = True
 
         self.helper = FormHelper()
         self.helper.form_class = "g-3"
