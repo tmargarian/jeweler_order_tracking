@@ -162,6 +162,12 @@ class OrderCreateView(
 
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        context = self.get_context_data()
+        print(context["form"].data)
+        print(context["form"].errors)
+        return super().form_invalid(form)
+
 
 class OrderUpdateView(
     LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, UpdateView

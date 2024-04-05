@@ -13,13 +13,16 @@
                 document.querySelector('#id_phone_number'),
             ];
 
-
             let isClientExists = clientExistsSelector.value === 'True';
 
             // {# Disabling/Enabling Client Fields (Name/Phone/Email) #}
             clientFields.forEach(field => {field.disabled = isClientExists;});
             // {# Enabling/Disabling the Client Selector #}
             clientSelector.disabled = !isClientExists;
+
+            clientFields.forEach(field => {
+                console.log(field.value);
+            });
 
             // {# If we set Existing Client? to No -> Set the Client Selector and Data to nothing #}
             if (!isClientExists) {
@@ -28,8 +31,6 @@
                     field.value = '';
                 });
             }
-            console.log("toggled fields disabled");
-
         }
 
         function populateClientFields(url) {
@@ -65,8 +66,7 @@
 
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Initially set the field states and add an event listener
-            toggleFieldsDisabled();
+            // Add event listeners
             let clientExistsSelector = document.querySelector('#id_client_already_exists');
             clientExistsSelector.addEventListener('change', toggleFieldsDisabled);
 
