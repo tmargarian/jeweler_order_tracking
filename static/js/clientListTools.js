@@ -1,8 +1,6 @@
-import { updateURLParameter, initializeSelect2AndListeners } from './helperFunctions.js';
+import { updateURLParameter, initializeSelect2AndListeners } from './helperFunctions.js'
 
 const selectElements = [
-    {selector: '#order-status-select-multiple', paramName: 'order_status'},
-    {selector: '#order-type-select-multiple', paramName: 'order_type'},
     {selector: '#client-select-multiple', paramName: 'client'}
 ];
 
@@ -11,7 +9,7 @@ $(document).ready(() => {
     initializeSelect2AndListeners(selectElements);
 
     // paginate_by element selector
-    const select = document.getElementById("orderPerPageSelector");
+    const select = document.getElementById("clientPerPageSelector");
 
     // Add an event listener for the change event on the select element
     select.addEventListener("change", function() {

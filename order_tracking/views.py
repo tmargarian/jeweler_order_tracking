@@ -33,7 +33,7 @@ class OrderListView(
         context = super().get_context_data(**kwargs)
 
         user_preferences, created = (UserPreferences.objects
-                                     .get_or_create(user_id = self.request.user.id))
+                                     .get_or_create(user_id=self.request.user.id))
         context["pagination_options"] = UserPreferences.PAGINATION_OPTIONS
         context["user_pagination_setting"] = user_preferences.orders_per_page
 
@@ -50,7 +50,7 @@ class OrderListView(
         UserPreferences setting (10 by default)
         """
         user_preferences, created = (UserPreferences.objects
-                                     .get_or_create(user_id = self.request.user.id))
+                                     .get_or_create(user_id=self.request.user.id))
         paginate_by = int(self.request.GET.get("paginate_by", user_preferences.orders_per_page))
 
         # Update user preferences
@@ -63,13 +63,12 @@ class OrderListView(
         else:
             return paginate_by
 
-
     def get_queryset(self):
         queryset = (
             super()
-                .get_queryset()  # this is needed for self.ordering and get_ordering() to work
-                .filter(company=self.request.user.company)  # only orders of the user's company
-                .filter(deleted_flag=False)  # accounting for soft-deleted orders
+            .get_queryset()  # this is needed for self.ordering and get_ordering() to work
+            .filter(company=self.request.user.company)  # only orders of the user's company
+            .filter(deleted_flag=False)  # accounting for soft-deleted orders
         )
 
         # Order Status filter handling
@@ -97,6 +96,7 @@ class OrderListView(
             pass
         else:
             return super().get(request, *args, **kwargs)
+
 
 class OrderCreateView(
     LoginRequiredMixin, CompleteProfileAndActiveSubscriptionMixin, CreateView
@@ -269,25 +269,71 @@ class ClientListView(
     model = Client
     template_name = "order_tracking/client_list.html"
     context_object_name = "client_list"
+    ordering = "-created_at"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        user_preferences, created = (UserPreferences.objects
+                                     .get_or_create(user_id=self.request.user.id))
+        context["pagination_options"] = UserPreferences.PAGINATION_OPTIONS
+        context["user_pagination_setting"] = user_preferences.clients_per_page
+
+        context["clients"] = Client.objects.filter(user_id=self.request.user.id)
+
+        return context
+
+    def get_paginate_by(self, queryset):
+        """
+        Pulling the paginate_by from the page (if changed by user) or using the
+        UserPreferences setting (10 by default)
+        """
+        user_preferences, created = (UserPreferences.objects
+                                     .get_or_create(user_id=self.request.user.id))
+        paginate_by = int(self.request.GET.get("paginate_by", user_preferences.clients_per_page))
+
+        # Update user preferences
+        if user_preferences.clients_per_page != paginate_by:
+            user_preferences.clients_per_page = paginate_by
+            user_preferences.save()
+
+        if paginate_by == -1:
+            return None  # Disable pagination
+        else:
+            return paginate_by
 
     def get_queryset(self):
-        user = self.request.user
-        queryset = Client.objects.filter(company=user.company).filter(
-            deleted_flag=False
-        )
-        queryset = queryset.annotate(
-            total_spent_column=Sum(
-                Case(
-                    When(
-                        orders__order_status__in=["completed"],
-                        orders__deleted_flag=False,
-                        then=F("orders__quoted_price"),
-                    ),
-                    default=0.00,
-                    output_field=DecimalField(),
+        queryset = (
+            super().get_queryset()
+            .filter(company=self.request.user.company)
+            .filter(deleted_flag=False)
+            .annotate(
+                total_spent=Sum(
+                    Case(
+                        When(
+                            orders__order_status__in=["completed"],
+                            orders__deleted_flag=False,
+                            then=F("orders__quoted_price")),
+                        default=0.00,
+                        output_field=DecimalField()
+                        )
+                    )
                 )
-            )
         )
+
+        # Client search
+        clients = self.request.GET.getlist("client", None)
+        if clients:
+            queryset = queryset.filter(id__in=clients)
+
+        # Ordering (stupid solution for total_spent only)
+        # If decide to add another sorting variable - WILL need rework
+        order_by = self.request.GET.getlist("order_by", None)
+        if "-total_spent" in order_by:
+            queryset = queryset.order_by("-total_spent")
+        elif "total_spent" in order_by:
+            queryset = queryset.order_by("total_spent")
+
         return queryset
 
 

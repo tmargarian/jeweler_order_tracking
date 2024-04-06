@@ -10,7 +10,7 @@
 
 {% block content %}
   {# Tools: Search | Sort | # of Order by Page #}
-  <div class="row g-3 p-2 align-items-center">
+  <div class="row g-3 p-2 align-items-center justify-content-between">
     {# Client Search #}
     <div class="col-md-5">
       <select id="client-select-multiple"
@@ -82,7 +82,7 @@
         {% if not "order_date" in request.GET.order_by %}
           <a href="{% add_to_order_by "order_date" %}"> — </a>
         {% elif "-order_date" in request.GET.order_by %}
-          <a href="{% remove_from_order_by "-order_date" %}" %}> &#x25B2; </a>
+          <a href="{% remove_from_order_by "-order_date" %}"> &#x25B2; </a>
         {% elif "order_date" in request.GET.order_by %}
           <a href="{% add_to_order_by "-order_date" %}"> &#x25BC; </a>
         {% endif %}
@@ -92,7 +92,7 @@
         {% if not "order_due_date" in request.GET.order_by %}
           <a href="{% add_to_order_by "order_due_date" %}"> — </a>
         {% elif "-order_due_date" in request.GET.order_by %}
-          <a href="{% remove_from_order_by "-order_due_date" %}" %}> &#x25B2; </a>
+          <a href="{% remove_from_order_by "-order_due_date" %}"> &#x25B2; </a>
         {% elif "order_due_date" in request.GET.order_by %}
           <a href="{% add_to_order_by "-order_due_date" %}"> &#x25BC; </a>
         {% endif %}
@@ -178,5 +178,5 @@
 {% block script %}
     <script src="/static/js/imageModalList.js"></script>
     <script src="/static/js/orderTrackingStatusBgColor.js"></script>
-    <script src="/static/js/orderTrackingTools.js"></script>
+    <script type="module" src="/static/js/orderTrackingTools.js"></script>
 {% endblock script %}

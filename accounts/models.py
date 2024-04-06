@@ -56,6 +56,7 @@ class UserPreferences(models.Model):
 
     user = models.OneToOneField("CustomUser", on_delete=models.CASCADE)
     orders_per_page = models.IntegerField(choices=PAGINATION_OPTIONS, default=10, blank=False)
+    clients_per_page = models.IntegerField(choices=PAGINATION_OPTIONS, default=10, blank=False)
 
 
 class Company(models.Model):
