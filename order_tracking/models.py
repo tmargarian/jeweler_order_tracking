@@ -125,13 +125,6 @@ class Client(models.Model):
     last_name = models.CharField()
     phone_number = PhoneNumberField(blank=True, null=True, region="US")
     email = models.EmailField()
-    total_spent = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=0.00,
-        blank=True,
-        null=True,
-    )
     deleted_flag = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

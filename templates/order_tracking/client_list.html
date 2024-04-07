@@ -1,41 +1,129 @@
 {% extends "base/_base_in_product.html" %}
+{% load template_tags %}
 {% load static %}
 {% load humanize %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="/static/css/order_tracking.css">
+  <link rel="stylesheet" href="/static/css/order_tracking.css">
 {% endblock stylesheets %}
 
 {% block content %}
-        <table class="table table-striped">
-            <thead>
-                <th scope="col">#</th>
-                <th scope="col">Client Name</th>
-                <th scope="col">Client Phone</th>
-                <th scope="col">Email</th>
-                <th scope="col">Total Spent</th>
-                <th scope="col">Actions</th>
-            </thead>
+  <div class="row g-3 p-2 align-items-center justify-content-between">
+    {# Client Search #}
+    <div class="col-md-5">
+      <select id="client-select-multiple"
+              name="client"
+              data-placeholder="Client Details (Name | Tel | Email)"
+              multiple>
+        {% for client in clients %}
+        	<option value="{{ client.id }}">
+            {{ client.first_name }} {{ client.last_name }}
+            {% if client.phone_number %} | {{ client.phone_number }}  {% endif %}
+            {% if client.email %} | {{ client.email }} {% endif %}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
 
-            <tbody>
-                {% for client_list in client_list %}
-                {% if user.company == client_list.company %}
-                <tr>
-                    <th scope="row">{{ forloop.counter }}</th>
-                    <td>{{ client_list.first_name }} {{client_list.last_name}} </td>
-                    <td>{{ client_list.phone_number }} </td>
-                    <td>{{ client_list.email }} </td>
-                    <td>${{ client_list.total_spent_column | floatformat:2 | intcomma | default:0 }} </td>
-                    <td>
-                        <a href="{% url 'order_tracking:client_update' client_list.pk %}">Edit</a> |
-                        {% if user.is_owner or user.is_employee %}
-                        <a href="{% url 'order_tracking:client_delete' client_list.pk %}">Delete</a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-            </tbody>
+   {# Paginator Selector #}
+    <div class="form-floating col-md-2" style="position: relative; z-index: 0;">
+      <select class="form-select" id="clientPerPageSelector"
+              name="paginate_by"
+              aria-label="Clients per Page Selector">
+        {% for page_option in pagination_options %}
+          <option value="{{ page_option.0 }}"
+                  {% if request.GET.paginate_by == page_option.0|stringformat:"s" %}
+                    selected
+                  {% elif not request.GET.paginate_by and page_option.0 == user_pagination_setting %}
+                    selected
+                  {% endif %} >
+            {{ page_option.1 }}
+          </option>
+        {% endfor %}
+      </select>
+      <label for="orderPerPageSelector">Orders / Page</label>
+    </div>
+  </div>
 
-        </table>
+  <table class="table table-striped">
+    <thead>
+    <th scope="col">#</th>
+    <th scope="col">Client Name</th>
+    <th scope="col">Client Phone</th>
+    <th scope="col">Email</th>
+    <th scope="col">
+      Total Spent
+      {% if not "total_spent" in request.GET.order_by %}
+        <a href="{% add_to_order_by "total_spent" %}"> — </a>
+      {% elif "-total_spent" in request.GET.order_by %}
+        <a href="{% remove_from_order_by "-total_spent" %}"> &#x25B2; </a>
+      {% elif "total_spent" in request.GET.order_by %}
+        <a href="{% add_to_order_by "-total_spent" %}"> &#x25BC; </a>
+      {% endif %}
+    </th>
+    <th scope="col">Actions</th>
+    </thead>
+
+    <tbody>
+    {% for client_list in client_list %}
+    {% if user.company == client_list.company %}
+    <tr>
+      <th scope="row">{{ forloop.counter }}</th>
+      <td>{{ client_list.first_name }} {{client_list.last_name}}</td>
+      <td>{{ client_list.phone_number }}</td>
+      <td>{{ client_list.email }}</td>
+      <td>${{ client_list.total_spent | floatformat:2 | intcomma | default:0 }}</td>
+      <td>
+        <a href="{% url 'order_tracking:client_update' client_list.pk %}">Edit</a> |
+        {% if user.is_owner or user.is_employee %}
+        <a href="{% url 'order_tracking:client_delete' client_list.pk %}">Delete</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+
+  </table>
+
+  {# Pagination #}
+  {% if page_obj %} {# Don't show the paginator is Show All is selected #}
+    <nav aria-label="Page Navigation" style="position: relative; z-index: 0;">
+      <ul class="pagination justify-content-center">
+        <li class="page-item {% if not page_obj.has_previous %} disabled {% endif %} ">
+          <a class="page-link" href="{% if page_obj.has_previous %} {% query_transform page=page_obj.previous_page_number %} {% endif %}">
+            Previous
+          </a>
+        </li>
+
+        <li class="page-item">
+          <a class="page-link" href="{% query_transform page=1 %}">
+            First
+          </a>
+        </li>
+
+        <li class="page-item">
+          <a class="page-link active">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </a>
+        </li>
+
+        <li class="page-item">
+          <a class="page-link" href="{% query_transform page=page_obj.paginator.num_pages %}">
+            Last
+          </a>
+        </li>
+
+        <li class="page-item {% if not page_obj.has_next %} disabled {% endif %}">
+          <a class="page-link" href="{% if page_obj.has_next %} {% query_transform page=page_obj.next_page_number %} {% endif %}">
+            Next
+          </a>
+        </li>
+      </ul>
+    </nav>
+  {% endif %}
 {% endblock %}
+
+{% block script %}
+  <script type="module" src="/static/js/clientListTools.js"></script>
+{% endblock script %}
