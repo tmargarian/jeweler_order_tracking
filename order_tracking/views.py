@@ -71,6 +71,9 @@ class OrderListView(
             .filter(deleted_flag=False)  # accounting for soft-deleted orders
         )
 
+        # Prefetch clients to avoid hitting the db for every order
+        queryset = queryset.select_related('client')
+
         # Order Status filter handling
         order_statuses = self.request.GET.getlist("order_status", None)
 
