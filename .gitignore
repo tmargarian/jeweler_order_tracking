@@ -170,3 +170,6 @@ cython_debug/
 
 # Media files
 /media/
+
+# Ignoring the productino YML file
+compose-prod.yml

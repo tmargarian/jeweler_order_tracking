@@ -1,0 +1,44 @@
+.order-notes {
+    background-color: #f8f9fa;
+    border: 1px solid #dcdcdc;
+    padding: 10px 20px 10px 10px;
+}
+
+.order-note-list {
+    list-style: none;
+    padding: 0;
+}
+
+.order-note-list li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #dcdcdc;
+    padding-bottom: 10px;
+}
+
+.note-content {
+    text-align: left;
+    width: 50%;
+    word-wrap: break-word;
+}
+
+ .note-timestamp {
+     text-align: right;
+     padding-right: 10px;
+     width: 50%;
+     text-align: right;
+}
+
+.note-delete {
+    color: red; /* Make the "X" text red */
+    width: 30px; /* Set a fixed width for the "X" button */
+    height: 30px; /* Set a fixed height for the "X" button */
+    text-align: center; /* Center the "X" horizontally within the button */
+    cursor: pointer; /* Add a pointer cursor on hover */
+}
+
+/* Add this CSS code if you want to change the button's background color on hover */
+.note-delete:hover {
+    background-color: lightcoral; /* Change the background color on hover */
+}

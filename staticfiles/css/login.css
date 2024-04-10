@@ -1,0 +1,37 @@
+.asteriskField {
+  display: none;
+}
+
+.form-signin,
+.form-profile
+{
+  max-width: 350px;
+  padding: 1rem;
+}
+
+.btn-primary {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Floating forms (login & signup) */
+.form-signin .form-floating:focus-within {
+  z-index: 2;
+}
+
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+#div_id_login,
+#div_id_email {
+    margin-bottom: 0!important;
+}

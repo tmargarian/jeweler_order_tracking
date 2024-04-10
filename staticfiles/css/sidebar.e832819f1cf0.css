@@ -1,0 +1,92 @@
+/* the whole sidebar element <div> */
+.sidebar-element {
+    position: fixed;
+    z-index: 1030;
+    width: var(--sidebar-width-norm);
+    top: 0;
+    left: 0;
+    bottom: 0;
+    padding: 1rem;
+}
+
+/* .bi is the class for orders/clients/new order image */
+.bi {
+    vertical-align: -.125em;
+    pointer-events: none;
+    fill: currentColor;
+    width: 16px;
+    height: 16px;
+    margin-right: 0.5rem;
+}
+
+.bi-main {
+    vertical-align: -.125em;
+    pointer-events: none;
+    fill: currentColor;
+    width: 40px;
+    height: 40px;
+    margin-right: 0.5rem;
+}
+
+/* Anchor link for orders/clients/new order buttons */
+.nav-link {
+    border-radius: 0;
+}
+
+.rounded-circle {
+    margin-right: 0.5rem;
+}
+
+@media (max-width: 1350px) {
+    .sidebar-element {
+        width: var(--sidebar-width-sm);
+        padding: 0;
+    }
+
+    .bi {
+        width: 24px;
+        height: 24px;
+        margin-right: 0;
+    }
+
+    .bi-main {
+        margin-right: 0;
+    }
+
+    .page-content {
+        margin-left: var(--sidebar-width-sm);
+    }
+
+    .title-span,
+    .bottom-username,
+    .sidebar-btn {
+        display: none;
+    }
+
+    .nav-link {
+        padding: 4px;
+        border-radius: 0 !important;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .top-hr {
+        margin-bottom: 0;
+        margin-top: 0;
+    }
+
+    .bootstrap-anchor {
+        justify-content: center;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .dropdown-toggle {
+        padding-bottom: 1rem;
+        justify-content: center;
+    }
+
+    .rounded-circle {
+        margin-right: 0;
+    }
+}

@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-5e=0d^^o@m6ua(i*yk1nhm+(-@e@ojhkgr**3t^2l5t6n-mxr8"
+SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "whitenoise.runserver_nostatic",  # Static File serving
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     # Third-Party
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "formtools",
     "djstripe",
+    "debug_toolbar",
     "crispy_forms",
     "crispy_bootstrap5",
     "allauth",
@@ -67,12 +69,20 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    # Debug Toolbar
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # Allauth Middleware
     "allauth.account.middleware.AccountMiddleware",
+    # WhiteNoise
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda _request: DEBUG
+}
 
 ROOT_URLCONF = "django_project.urls"
 
@@ -143,7 +153,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Media files (user uploaded files)
 MEDIA_URL = "/media/"
