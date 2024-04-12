@@ -216,7 +216,7 @@ STRIPE_TEST_SECRET_KEY = env("STRIPE_TEST_SECRET_KEY")
 STRIPE_LIVE_MODE = env.bool("STRIPE_LIVE_MODE", False)
 
 # Get it from the section in the Stripe dashboard where you added the webhook endpoint
-DJSTRIPE_WEBHOOK_SECRET = "whsec_EEVhxPMfTisKd6emTRu0ThfnlgBtczfH"
+DJSTRIPE_WEBHOOK_SECRET = env("STRIPE_WHSEC")
 
 DJSTRIPE_USE_NATIVE_JSONFIELD = env.bool(
     "DJSTRIPE_USE_NATIVE_JSONFIELD", True
