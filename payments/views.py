@@ -73,11 +73,7 @@ class SubscriptionConfirmView(LoginRequiredMixin, TemplateView):
         session_id = request.GET.get("session_id")
         session = stripe.checkout.Session.retrieve(session_id)
 
-        print(f"session_id: {session_id}")
-        print(f"Stripe session: {session}")
-
         company_id = int(session.client_reference_id)
-        print(f"company_id in session: {session.client_reference_id}")
 
         session_company = Company.objects.get(id=company_id)
         current_company = Company.objects.get(owner__user_id=request.user.id)
