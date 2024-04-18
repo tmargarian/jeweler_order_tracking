@@ -10,6 +10,7 @@ from django.db import models
 from accounts.models import Company
 from phonenumber_field.modelfields import PhoneNumberField
 
+
 class Order(models.Model):
     ORDER_TYPE_CHOICES = [
         ("purchase", "Purchase"),
